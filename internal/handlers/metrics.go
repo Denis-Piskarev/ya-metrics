@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	ya_metric "github.com/DenisquaP/ya-metrics/internal/ya_metrics"
+	"github.com/DenisquaP/ya-metrics/internal/yaMetrics"
 	"net/http"
 	"strings"
 )
@@ -15,19 +15,21 @@ func createMetric(rw http.ResponseWriter, r *http.Request) {
 
 	url, ok := strings.CutPrefix(r.URL.String(), "/update/")
 	if !ok {
-		http.Error(rw, "empty ya_metrics", http.StatusBadRequest)
+		http.Error(rw, "empty yaMetrics", http.StatusBadRequest)
+		return
 	}
 
 	sliceMetric := strings.Split(url, "/")
 	if len(sliceMetric) != 3 {
-		http.Error(rw, "empty ya_metrics", http.StatusNotFound)
+		http.Error(rw, "empty yaMetrics", http.StatusNotFound)
+		return
 	}
 
 	typeMetric := sliceMetric[0]
 	nameMetric := sliceMetric[1]
 	valueMetric := sliceMetric[2]
 
-	err := ya_metric.WriteMetric(nameMetric, typeMetric, valueMetric)
+	err := yaMetric.WriteMetric(nameMetric, typeMetric, valueMetric)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusBadRequest)
 		return
