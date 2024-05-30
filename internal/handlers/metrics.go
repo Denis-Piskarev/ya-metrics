@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"github.com/DenisquaP/ya-metrics/internal/yaMetrics"
+	yametrics "github.com/DenisquaP/ya-metrics/internal/yaMetrics"
 	"net/http"
 	"strings"
 )
@@ -29,7 +29,7 @@ func createMetric(rw http.ResponseWriter, r *http.Request) {
 	nameMetric := sliceMetric[1]
 	valueMetric := sliceMetric[2]
 
-	err := yaMetric.WriteMetric(nameMetric, typeMetric, valueMetric)
+	err := yametrics.WriteMetric(nameMetric, typeMetric, valueMetric)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusBadRequest)
 		return

@@ -1,4 +1,4 @@
-package yaMetric
+package yametrics
 
 import (
 	"fmt"
