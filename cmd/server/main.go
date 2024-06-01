@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/DenisquaP/ya-metrics/internal/handlers"
+	"github.com/DenisquaP/ya-metrics/internal/server/handlers"
 	"log"
 	"net/http"
 )
