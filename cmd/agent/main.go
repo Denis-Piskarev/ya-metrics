@@ -8,8 +8,6 @@ import (
 func main() {
 	mem := memyandex.MemStatsYaSt{RuntimeMem: &runtime.MemStats{}}
 
-	for _ = range 10 {
-		mem.UpdateMetrics()
-		mem.SendToServer()
-	}
+	mem.UpdateMetrics()
+	mem.SendToServer()
 }

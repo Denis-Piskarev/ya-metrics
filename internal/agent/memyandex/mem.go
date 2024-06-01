@@ -25,294 +25,91 @@ func (m *MemStatsYaSt) UpdateMetrics() {
 
 func (m *MemStatsYaSt) SendToServer() {
 	// Alloc
-	gauge := float64(m.RuntimeMem.Alloc)
-	res, err := http.Post(fmt.Sprintf(URL+"gauge/Alloc/%v", gauge), "text/plain", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if res.StatusCode != 200 {
-		log.Fatalf("status code error: %d", res.StatusCode)
-	}
+	sent(float64(m.RuntimeMem.Alloc), "Alloc", "gauge")
 
 	// BuckHashSys
-	gauge = float64(m.RuntimeMem.BuckHashSys)
-	res, err = http.Post(fmt.Sprintf(URL+"gauge/BuckHashSys/%v", gauge), "text/plain", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if res.StatusCode != 200 {
-		log.Fatalf("status code error: %d", res.StatusCode)
-	}
+	sent(float64(m.RuntimeMem.BuckHashSys), "BuckHashSys", "gauge")
 
 	// Frees
-	gauge = float64(m.RuntimeMem.Frees)
-	res, err = http.Post(fmt.Sprintf(URL+"gauge/Frees/%v", gauge), "text/plain", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if res.StatusCode != 200 {
-		log.Fatalf("status code error: %d", res.StatusCode)
-	}
+	sent(float64(m.RuntimeMem.Frees), "Frees", "gauge")
 
 	// GCCPUFraction
-	gauge = m.RuntimeMem.GCCPUFraction
-	res, err = http.Post(fmt.Sprintf(URL+"gauge/GCCPUFraction/%v", gauge), "text/plain", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if res.StatusCode != 200 {
-		log.Fatalf("status code error: %d", res.StatusCode)
-	}
+	sent(m.RuntimeMem.GCCPUFraction, "GCCPUFraction", "gauge")
 
 	// GCSys
-	gauge = float64(m.RuntimeMem.GCSys)
-	res, err = http.Post(fmt.Sprintf(URL+"gauge/GCSys/%v", gauge), "text/plain", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if res.StatusCode != 200 {
-		log.Fatalf("status code error: %d", res.StatusCode)
-	}
+	sent(float64(m.RuntimeMem.GCSys), "GCSys", "gauge")
 
 	// HeapAlloc
-	gauge = float64(m.RuntimeMem.HeapAlloc)
-	res, err = http.Post(fmt.Sprintf(URL+"gauge/HeapAlloc/%v", gauge), "text/plain", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if res.StatusCode != 200 {
-		log.Fatalf("status code error: %d", res.StatusCode)
-	}
+	sent(float64(m.RuntimeMem.HeapAlloc), "HeapAlloc", "gauge")
 
 	// HeapIdle
-	gauge = float64(m.RuntimeMem.HeapIdle)
-	res, err = http.Post(fmt.Sprintf(URL+"gauge/HeapIdle/%v", gauge), "text/plain", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if res.StatusCode != 200 {
-		log.Fatalf("status code error: %d", res.StatusCode)
-	}
-
-	// HeapInuse
-	gauge = float64(m.RuntimeMem.HeapInuse)
-	res, err = http.Post(fmt.Sprintf(URL+"gauge/HeapInuse/%v", gauge), "text/plain", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if res.StatusCode != 200 {
-		log.Fatalf("status code error: %d", res.StatusCode)
-	}
+	sent(float64(m.RuntimeMem.HeapIdle), "HeapIdle", "gauge")
 
 	// HeapObjects
-	gauge = float64(m.RuntimeMem.HeapObjects)
-	res, err = http.Post(fmt.Sprintf(URL+"gauge/HeapObjects/%v", gauge), "text/plain", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if res.StatusCode != 200 {
-		log.Fatalf("status code error: %d", res.StatusCode)
-	}
+	sent(float64(m.RuntimeMem.HeapObjects), "HeapObjects", "gauge")
 
 	// HeapReleased
-	gauge = float64(m.RuntimeMem.HeapReleased)
-	res, err = http.Post(fmt.Sprintf(URL+"gauge/HeapReleased/%v", gauge), "text/plain", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if res.StatusCode != 200 {
-		log.Fatalf("status code error: %d", res.StatusCode)
-	}
+	sent(float64(m.RuntimeMem.HeapReleased), "HeapReleased", "gauge")
 
 	// HeapSys
-	gauge = float64(m.RuntimeMem.HeapSys)
-	res, err = http.Post(fmt.Sprintf(URL+"gauge/HeapSys/%v", gauge), "text/plain", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if res.StatusCode != 200 {
-		log.Fatalf("status code error: %d", res.StatusCode)
-	}
+	sent(float64(m.RuntimeMem.HeapSys), "HeapSys", "gauge")
 
 	// LastGC
-	gauge = float64(m.RuntimeMem.LastGC)
-	res, err = http.Post(fmt.Sprintf(URL+"gauge/LastGC/%v", gauge), "text/plain", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if res.StatusCode != 200 {
-		log.Fatalf("status code error: %d", res.StatusCode)
-	}
+	sent(float64(m.RuntimeMem.LastGC), "LastGC", "gauge")
 
 	// Lookups
-	gauge = float64(m.RuntimeMem.Lookups)
-	res, err = http.Post(fmt.Sprintf(URL+"gauge/Lookups/%v", gauge), "text/plain", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if res.StatusCode != 200 {
-		log.Fatalf("status code error: %d", res.StatusCode)
-	}
+	sent(float64(m.RuntimeMem.Lookups), "Lookups", "gauge")
 
 	// MCacheInuse
-	gauge = float64(m.RuntimeMem.MCacheInuse)
-	res, err = http.Post(fmt.Sprintf(URL+"gauge/MCacheInuse/%v", gauge), "text/plain", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
+	sent(float64(m.RuntimeMem.MCacheInuse), "MCacheInuse", "gauge")
 
-	if res.StatusCode != 200 {
-		log.Fatalf("status code error: %d", res.StatusCode)
-	}
+	// MCacheSys
+	sent(float64(m.RuntimeMem.MCacheSys), "MCacheSys", "gauge")
+
+	// MSpanInuse
+	sent(float64(m.RuntimeMem.MSpanInuse), "MSpanInuse", "gauge")
 
 	// MSpanSys
-	gauge = float64(m.RuntimeMem.MSpanSys)
-	res, err = http.Post(fmt.Sprintf(URL+"gauge/MSpanSys/%v", gauge), "text/plain", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if res.StatusCode != 200 {
-		log.Fatalf("status code error: %d", res.StatusCode)
-	}
+	sent(float64(m.RuntimeMem.MSpanSys), "MSpanSys", "gauge")
 
 	// Mallocs
-	gauge = float64(m.RuntimeMem.Mallocs)
-	res, err = http.Post(fmt.Sprintf(URL+"gauge/Mallocs/%v", gauge), "text/plain", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if res.StatusCode != 200 {
-		log.Fatalf("status code error: %d", res.StatusCode)
-	}
+	sent(float64(m.RuntimeMem.Mallocs), "Mallocs", "gauge")
 
 	// NextGC
-	gauge = float64(m.RuntimeMem.NextGC)
-	res, err = http.Post(fmt.Sprintf(URL+"gauge/NextGC/%v", gauge), "text/plain", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if res.StatusCode != 200 {
-		log.Fatalf("status code error: %d", res.StatusCode)
-	}
+	sent(float64(m.RuntimeMem.NextGC), "NextGC", "gauge")
 
 	// NumForcedGC
-	gauge = float64(m.RuntimeMem.NumForcedGC)
-	res, err = http.Post(fmt.Sprintf(URL+"gauge/NumForcedGC/%v", gauge), "text/plain", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if res.StatusCode != 200 {
-		log.Fatalf("status code error: %d", res.StatusCode)
-	}
+	sent(float64(m.RuntimeMem.NumForcedGC), "NumForcedGC", "gauge")
 
 	// NumGC
-	gauge = float64(m.RuntimeMem.NumGC)
-	res, err = http.Post(fmt.Sprintf(URL+"gauge/NumGC/%v", gauge), "text/plain", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if res.StatusCode != 200 {
-		log.Fatalf("status code error: %d", res.StatusCode)
-	}
+	sent(float64(m.RuntimeMem.NumGC), "NumGC", "gauge")
 
 	// OtherSys
-	gauge = float64(m.RuntimeMem.OtherSys)
-	res, err = http.Post(fmt.Sprintf(URL+"gauge/OtherSys/%v", gauge), "text/plain", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if res.StatusCode != 200 {
-		log.Fatalf("status code error: %d", res.StatusCode)
-	}
+	sent(float64(m.RuntimeMem.OtherSys), "OtherSys", "gauge")
 
 	// PauseTotalNs
-	gauge = float64(m.RuntimeMem.PauseTotalNs)
-	res, err = http.Post(fmt.Sprintf(URL+"gauge/PauseTotalNs/%v", gauge), "text/plain", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if res.StatusCode != 200 {
-		log.Fatalf("status code error: %d", res.StatusCode)
-	}
+	sent(float64(m.RuntimeMem.PauseTotalNs), "PauseTotalNs", "gauge")
 
 	// StackInuse
-	gauge = float64(m.RuntimeMem.StackInuse)
-	res, err = http.Post(fmt.Sprintf(URL+"gauge/StackInuse/%v", gauge), "text/plain", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if res.StatusCode != 200 {
-		log.Fatalf("status code error: %d", res.StatusCode)
-	}
-
-	// StackSys
-	gauge = float64(m.RuntimeMem.StackSys)
-	res, err = http.Post(fmt.Sprintf(URL+"gauge/StackSys/%v", gauge), "text/plain", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if res.StatusCode != 200 {
-		log.Fatalf("status code error: %d", res.StatusCode)
-	}
+	sent(float64(m.RuntimeMem.StackInuse), "StackInuse", "gauge")
 
 	// Sys
-	gauge = float64(m.RuntimeMem.Sys)
-	res, err = http.Post(fmt.Sprintf(URL+"gauge/Sys/%v", gauge), "text/plain", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if res.StatusCode != 200 {
-		log.Fatalf("status code error: %d", res.StatusCode)
-	}
+	sent(float64(m.RuntimeMem.Sys), "Sys", "gauge")
 
 	// TotalAlloc
-	gauge = float64(m.RuntimeMem.TotalAlloc)
-	res, err = http.Post(fmt.Sprintf(URL+"gauge/TotalAlloc/%v", gauge), "text/plain", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if res.StatusCode != 200 {
-		log.Fatalf("status code error: %d", res.StatusCode)
-	}
+	sent(float64(m.RuntimeMem.TotalAlloc), "TotalAlloc", "gauge")
 
 	// PollCount
-	counter := m.PollCount
-	res, err = http.Post(fmt.Sprintf(URL+"counter/PollCount/%d", counter), "text/plain", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if res.StatusCode != 200 {
-		log.Fatalf("status code error: %d", res.StatusCode)
-	}
+	sent(float64(m.PollCount), "PollCount", "counter")
 
 	// RandomValue
-	gauge = m.RandomValue
-	res, err = http.Post(fmt.Sprintf(URL+"gauge/RandomValue/%v", gauge), "text/plain", nil)
+	sent(m.RandomValue, "RandomValue", "gauge")
+
+	time.Sleep(10 * time.Second)
+}
+
+func sent(variable any, name, vType string) {
+	res, err := http.Post(fmt.Sprintf(URL+"%s/%s/%v", vType, name, variable), "text/plain", nil)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -320,6 +117,4 @@ func (m *MemStatsYaSt) SendToServer() {
 	if res.StatusCode != 200 {
 		log.Fatalf("status code error: %d", res.StatusCode)
 	}
-
-	time.Sleep(10 * time.Second)
 }
