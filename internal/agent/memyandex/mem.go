@@ -114,6 +114,8 @@ func sent(variable any, name, vType string) {
 		log.Fatal(err)
 	}
 
+	defer res.Body.Close()
+
 	if res.StatusCode != 200 {
 		log.Fatalf("status code error: %d", res.StatusCode)
 	}
