@@ -1,11 +1,36 @@
 package handlers
 
-import "net/http"
+import (
+	"net/http"
 
-func InitHandlers() http.Handler {
-	mux := http.NewServeMux()
+	yametrics "github.com/DenisquaP/ya-metrics/internal/server/yaMetrics"
+	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
+)
 
-	mux.HandleFunc("/update/", createMetric)
+type Handler struct {
+	Metrics *yametrics.MemStorage
+}
 
-	return mux
+func NewHanler() *Handler {
+	metrics := yametrics.NewMemStorage()
+	return &Handler{
+		Metrics: metrics,
+	}
+}
+
+func InitRouter() http.Handler {
+	r := chi.NewRouter()
+
+	h := NewHanler()
+
+	r.Route("/update", func(r chi.Router) {
+		r.Use(middleware.AllowContentType("text/plain"))
+
+		r.Post("/{type}/{name}/{value}", h.createMetric)
+	})
+
+	r.Get("/", h.GetMetrics)
+
+	return r
 }

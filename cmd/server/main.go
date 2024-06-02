@@ -1,16 +1,17 @@
 package main
 
 import (
-	"github.com/DenisquaP/ya-metrics/internal/server/handlers"
 	"log"
 	"net/http"
+
+	"github.com/DenisquaP/ya-metrics/internal/server/handlers"
 )
 
 func main() {
 	log.Println("Starting server...")
-	handlers := handlers.InitHandlers()
+	router := handlers.InitRouter()
 
-	if err := http.ListenAndServe(":8080", handlers); err != nil {
+	if err := http.ListenAndServe(":8080", router); err != nil {
 		panic(err)
 	}
 }
