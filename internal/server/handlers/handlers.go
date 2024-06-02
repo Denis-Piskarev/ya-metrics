@@ -31,6 +31,7 @@ func InitRouter() http.Handler {
 	})
 
 	r.Get("/", h.GetMetrics)
+	r.Get("/value/{type}/{name}", h.GetMetric)
 
 	return r
 }

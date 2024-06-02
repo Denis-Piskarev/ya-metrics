@@ -14,28 +14,23 @@ func (h *Handler) createMetric(rw http.ResponseWriter, r *http.Request) {
 
 	log.Println(typeMetric, nameMetric, valueMetric)
 
-	if typeMetric == "counter" {
-		err := h.Metrics.WriteCounter(nameMetric, valueMetric)
-		if err != nil {
-			http.Error(rw, err.Error(), http.StatusBadRequest)
-			return
-		}
-	} else if typeMetric == "gauge" {
-		err := h.Metrics.WriteGauge(nameMetric, valueMetric)
-		if err != nil {
-			http.Error(rw, err.Error(), http.StatusBadRequest)
-			return
-		}
-	}
-}
-
-func (h *Handler) GetMetric(rw http.ResponseWriter, r *http.Request) {
-	name := chi.URLParam(r, "name")
-	val, err := h.Metrics.GetGauge(name)
-	if err != nil {
+	if err := h.Metrics.WriteMetric(nameMetric, typeMetric, valueMetric); err != nil {
 		http.Error(rw, err.Error(), http.StatusBadRequest)
 		return
 	}
+	rw.WriteHeader(http.StatusOK)
+}
+
+func (h *Handler) GetMetric(rw http.ResponseWriter, r *http.Request) {
+	typeMet := chi.URLParam(r, "type")
+	name := chi.URLParam(r, "name")
+
+	val, err := h.Metrics.GetMetric(typeMet, name)
+	if err != nil {
+		http.Error(rw, err.Error(), http.StatusNotFound)
+		return
+	}
+
 	rw.Write([]byte(val))
 }
 
