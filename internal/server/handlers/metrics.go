@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/go-chi/chi"
@@ -12,7 +11,10 @@ func (h *Handler) createMetric(rw http.ResponseWriter, r *http.Request) {
 	nameMetric := chi.URLParam(r, "name")
 	valueMetric := chi.URLParam(r, "value")
 
-	log.Println(typeMetric, nameMetric, valueMetric)
+	if nameMetric == "" {
+		http.Error(rw, "empty name", http.StatusNotFound)
+		return
+	}
 
 	if err := h.Metrics.WriteMetric(nameMetric, typeMetric, valueMetric); err != nil {
 		http.Error(rw, err.Error(), http.StatusBadRequest)

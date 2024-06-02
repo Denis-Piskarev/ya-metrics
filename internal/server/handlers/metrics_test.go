@@ -1,10 +1,11 @@
 package handlers
 
 import (
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestCreateMetrics(t *testing.T) {
@@ -38,13 +39,17 @@ func TestCreateMetrics(t *testing.T) {
 			expectedCode: http.StatusBadRequest,
 		},
 	}
+	h := NewHanler()
+	srv := httptest.NewServer(InitRouter())
+	defer srv.Close()
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := httptest.NewRecorder()
 			req := httptest.NewRequest(tt.method, tt.url, nil)
-			req.Header.Set("Content-Type", "plain/text; charset=UTF-8")
+			req.Header.Set("Content-Type", "plain/text")
 
-			createMetric(r, req)
+			h.createMetric(r, req)
 			assert.Equal(t, tt.expectedCode, r.Code)
 		})
 	}

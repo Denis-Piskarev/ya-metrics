@@ -1,12 +1,13 @@
 package handlers
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestInitHandlers(t *testing.T) {
-	mux := InitHandlers()
+	r := InitRouter()
 
-	assert.NotEmpty(t, mux)
+	assert.NotEmpty(t, r)
 }
