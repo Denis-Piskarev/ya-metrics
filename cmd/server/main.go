@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
@@ -10,10 +9,10 @@ import (
 
 func main() {
 	parseFlags()
-	log.Println("Starting server on port " + flagRunAddr + "...")
+	log.Println("Starting server on port " + flagRunPort + "...")
 	router := handlers.InitRouter()
 
-	if err := http.ListenAndServe(fmt.Sprintf("%s", flagRunAddr), router); err != nil {
+	if err := http.ListenAndServe(flagRunHost+":"+flagRunPort, router); err != nil {
 		panic(err)
 	}
 }
