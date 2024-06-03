@@ -24,13 +24,14 @@ func InitRouter() http.Handler {
 
 	h := NewHanler()
 
+	r.Get("/", h.GetMetrics)
+
 	r.Route("/update", func(r chi.Router) {
 		r.Use(middleware.AllowContentType("text/plain"))
 
 		r.Post("/{type}/{name}/{value}", h.createMetric)
 	})
 
-	r.Get("/", h.GetMetrics)
 	r.Get("/value/{type}/{name}", h.GetMetric)
 
 	return r
