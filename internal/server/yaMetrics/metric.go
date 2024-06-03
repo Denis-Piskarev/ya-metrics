@@ -58,7 +58,7 @@ func (m *MemStorage) GetMetrics() string {
 }
 
 func (m *MemStorage) GetMetric(typeMet, name string) (string, error) {
-	if typeMet == "gouge" {
+	if typeMet == "gauge" {
 		g, ok := m.Gauge[name]
 		if !ok {
 			return "", fmt.Errorf("variable does not exists")
