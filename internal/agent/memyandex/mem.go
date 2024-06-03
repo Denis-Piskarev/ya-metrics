@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-const URL = "http://localhost:%s/update/"
+const URL = "http://localhost%s/update/"
 
 type MemStatsYaSt struct {
 	RuntimeMem  *runtime.MemStats
