@@ -6,8 +6,9 @@ import (
 )
 
 func main() {
+	parseFlags()
 	mem := memyandex.MemStatsYaSt{RuntimeMem: &runtime.MemStats{}}
 
-	mem.UpdateMetrics()
-	mem.SendToServer()
+	mem.UpdateMetrics(flagPollInterval)
+	mem.SendToServer(flagRunAddr, flagReportInterval)
 }
