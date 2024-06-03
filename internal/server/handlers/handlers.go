@@ -12,7 +12,7 @@ type Handler struct {
 	Metrics *yametrics.MemStorage
 }
 
-func NewHanler() *Handler {
+func NewHandler() *Handler {
 	metrics := yametrics.NewMemStorage()
 	return &Handler{
 		Metrics: metrics,
@@ -22,7 +22,7 @@ func NewHanler() *Handler {
 func InitRouter() http.Handler {
 	r := chi.NewRouter()
 
-	h := NewHanler()
+	h := NewHandler()
 
 	r.Get("/", h.GetMetrics)
 

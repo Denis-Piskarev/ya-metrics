@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/go-chi/chi"
@@ -35,22 +34,18 @@ func (h *Handler) GetMetric(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	file, err := os.Open("metrics.html")
-	if err != nil {
-		http.Error(rw, err.Error(), http.StatusInternalServerError)
-	}
-	defer file.Close()
-
-	metHtml := strings.Replace(htmlMet, "{{metrics}}", val, -1)
-
-	rw.Write([]byte(metHtml))
+	rw.Write([]byte(val))
 }
 
 func (h *Handler) GetMetrics(rw http.ResponseWriter, r *http.Request) {
-	rw.Write([]byte(h.Metrics.GetMetrics()))
+	metrics := h.Metrics.GetMetrics()
+
+	metHTML := strings.Replace(HTMLMet, "{{metrics}}", metrics, -1)
+
+	rw.Write([]byte(metHTML))
 }
 
-var htmlMet = `<!DOCTYPE html>
+var HTMLMet = `<!DOCTYPE html>
 <html lang="en">
 
 <head>
