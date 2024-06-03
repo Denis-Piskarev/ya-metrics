@@ -1,11 +1,11 @@
 package handlers
 
 import (
+	"github.com/go-resty/resty/v2"
+	"github.com/stretchr/testify/require"
 	"net/http"
 	"net/http/httptest"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestCreateMetrics(t *testing.T) {
@@ -34,24 +34,24 @@ func TestCreateMetrics(t *testing.T) {
 			expectedCode: http.StatusNotFound,
 		}, {
 			name:         "POST 400",
-			url:          "/set/counter/Met/2",
+			url:          "/update/counters/Met/2",
 			method:       "POST",
 			expectedCode: http.StatusBadRequest,
 		},
 	}
-	h := NewHanler()
 	srv := httptest.NewServer(InitRouter())
 	defer srv.Close()
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := httptest.NewRecorder()
-			req := httptest.NewRequest(tt.method, tt.url, nil)
-			req.Header.Set("Content-Type", "plain/text")
+			req := resty.New().R()
+			req.Method = tt.method
+			req.URL = srv.URL + tt.url
 
-			h.createMetric(r, req)
-			assert.Equal(t, tt.expectedCode, r.Code)
+			resp, err := req.Send()
+			require.NoError(t, err)
+
+			require.Equal(t, tt.expectedCode, resp.StatusCode())
 		})
 	}
-
 }
