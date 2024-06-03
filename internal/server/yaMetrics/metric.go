@@ -37,7 +37,7 @@ func (m *MemStorage) WriteMetric(name, typeMet, val string) error {
 		if err != nil {
 			return fmt.Errorf("unsupported type of gauge: %s", err.Error())
 		}
-		m.Counter[name] = int64(c)
+		m.Counter[name] += int64(c)
 		return nil
 	}
 
