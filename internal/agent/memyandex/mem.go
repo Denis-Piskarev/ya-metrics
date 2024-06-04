@@ -16,15 +16,15 @@ type MemStatsYaSt struct {
 	RandomValue float64
 }
 
-func (m *MemStatsYaSt) UpdateMetrics(pollInterval time.Duration) {
+func (m *MemStatsYaSt) UpdateMetrics(pollInterval int) {
 	runtime.ReadMemStats(m.RuntimeMem)
 	m.RandomValue = float64(m.RuntimeMem.Alloc) / float64(1024)
 	m.PollCount++
 
-	time.Sleep(pollInterval)
+	time.Sleep(time.Second * time.Duration(pollInterval))
 }
 
-func (m *MemStatsYaSt) SendToServer(runAddr string, reportInterval time.Duration) {
+func (m *MemStatsYaSt) SendToServer(runAddr string, reportInterval int) {
 	// Alloc
 	sent(float64(m.RuntimeMem.Alloc), "Alloc", "gauge", runAddr)
 
@@ -106,7 +106,7 @@ func (m *MemStatsYaSt) SendToServer(runAddr string, reportInterval time.Duration
 	// RandomValue
 	sent(m.RandomValue, "RandomValue", "gauge", runAddr)
 
-	time.Sleep(reportInterval)
+	time.Sleep(time.Duration(reportInterval) * time.Second)
 }
 
 func sent(variable any, name, vType, addr string) {
