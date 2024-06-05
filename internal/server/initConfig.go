@@ -23,5 +23,6 @@ func InitConfig() (Config, error) {
 		flag.StringVar(&cfg.RunAddr, "a", "localhost:8080", "address and port to run server")
 	}
 
+	flag.Parse()
 	return cfg, nil
 }

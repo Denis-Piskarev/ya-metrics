@@ -37,5 +37,6 @@ func InitConfig() (Config, error) {
 		flag.IntVar(&cfg.PollInterval, "p", 2, "interval between polling calls")
 	}
 
+	flag.Parse()
 	return cfg, nil
 }
