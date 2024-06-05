@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/DenisquaP/ya-metrics/internal/server"
 	"log"
 	"net/http"
 
@@ -8,15 +9,15 @@ import (
 )
 
 func main() {
-	cfg, err := initConfig()
+	cfg, err := server.InitConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	log.Println("Starting server on " + cfg.runAddr + "...")
+	log.Println("Starting server on " + cfg.RunAddr + "...")
 	router := handlers.InitRouter()
 
-	if err := http.ListenAndServe(cfg.runAddr, router); err != nil {
+	if err := http.ListenAndServe(cfg.RunAddr, router); err != nil {
 		panic(err)
 	}
 }

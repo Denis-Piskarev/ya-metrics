@@ -12,7 +12,7 @@ type Config struct {
 
 // parseFlags обрабатывает аргументы командной строки
 // и сохраняет их значения в соответствующих переменных
-func initConfig() (Config, error) {
+func InitConfig() (Config, error) {
 	var cfg Config
 
 	if err := env.Parse(&cfg); err != nil {
