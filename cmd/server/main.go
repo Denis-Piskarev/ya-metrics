@@ -8,11 +8,15 @@ import (
 )
 
 func main() {
-	parseFlags()
-	log.Println("Starting server on port " + flagRunPort + "...")
+	cfg, err := initConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Println("Starting server on " + cfg.runAddr + "...")
 	router := handlers.InitRouter()
 
-	if err := http.ListenAndServe(flagRunHost+":"+flagRunPort, router); err != nil {
+	if err := http.ListenAndServe(cfg.runAddr, router); err != nil {
 		panic(err)
 	}
 }

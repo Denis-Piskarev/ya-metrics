@@ -2,13 +2,18 @@ package main
 
 import (
 	"github.com/DenisquaP/ya-metrics/internal/agent/memyandex"
+	"log"
 	"runtime"
 )
 
 func main() {
-	parseFlags()
+	cfg, err := initConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	mem := memyandex.MemStatsYaSt{RuntimeMem: &runtime.MemStats{}}
 
-	mem.UpdateMetrics(flagPollInterval)
-	mem.SendToServer(flagRunAddr, flagReportInterval)
+	mem.UpdateMetrics(cfg.pollInterval)
+	mem.SendToServer(cfg.runAddr, cfg.reportInterval)
 }

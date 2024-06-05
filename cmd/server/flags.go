@@ -2,26 +2,27 @@ package main
 
 import (
 	"flag"
-	"strings"
+	"github.com/caarlos0/env/v6"
 )
 
-// неэкспортированная переменная flagRunAddr содержит адрес и порт для запуска сервера
-var flagRunHost string
-var flagRunPort string
+type сonfig struct {
+	// неэкспортированная переменная flagRunAddr содержит адрес и порт для запуска сервера
+	runAddr string `env:"ADDRESS"`
+}
 
 // parseFlags обрабатывает аргументы командной строки
 // и сохраняет их значения в соответствующих переменных
-func parseFlags() {
-	var addr string
-	// регистрируем переменную flagRunAddr
-	// как аргумент -a со значением :8080 по умолчанию
-	flag.StringVar(&addr, "a", "localhost:8080", "address and port to run server")
+func initConfig() (сonfig, error) {
+	var cfg сonfig
 
-	// парсим переданные серверу аргументы в зарегистрированные переменные
-	flag.Parse()
+	err := env.Parse(&cfg)
+	if err != nil {
+		return сonfig{}, err
+	}
 
-	sliceAddr := strings.Split(addr, ":")
+	if cfg.runAddr == "" {
+		flag.StringVar(&cfg.runAddr, "a", "localhost:8080", "address and port to run server")
+	}
 
-	flagRunHost = sliceAddr[0]
-	flagRunPort = sliceAddr[1]
+	return cfg, nil
 }
