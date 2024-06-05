@@ -15,8 +15,7 @@ type сonfig struct {
 func initConfig() (сonfig, error) {
 	var cfg сonfig
 
-	err := env.Parse(&cfg)
-	if err != nil {
+	if err := env.Parse(&cfg); err != nil {
 		return сonfig{}, err
 	}
 
