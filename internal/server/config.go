@@ -10,7 +10,7 @@ import (
 )
 
 type config struct {
-	RunAddr string `env:"ADDRESS" envDefault:"localhost:8082"`
+	RunAddr string `env:"ADDRESS" envDefault:"localhost:8080"`
 }
 
 func NewConfig() (config, error) {
