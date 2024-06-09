@@ -6,25 +6,21 @@ import (
 	"net/http"
 
 	"github.com/DenisquaP/ya-metrics/internal/server/handlers"
-	"github.com/caarlos0/env/v6"
+	"github.com/caarlos0/env/v11"
 )
 
 type config struct {
-	// неэкспортированная переменная flagRunAddr содержит адрес и порт для запуска сервера
-	RunAddr string `env:"ADDRESS" envDefault:"localhost:8080"`
+	RunAddr string `env:"ADDRESS" envDefault:"localhost:8082"`
 }
 
-// parseFlags обрабатывает аргументы командной строки
-// и сохраняет их значения в соответствующих переменных
 func NewConfig() (config, error) {
 	var cfg config
 
+	// Setting values by flags, if env not empty, using env
+	flag.StringVar(&cfg.RunAddr, "a", "localhost:8080", "address and port to run server")
+
 	if err := env.Parse(&cfg); err != nil {
 		return config{}, err
-	}
-
-	if cfg.RunAddr == "" {
-		flag.StringVar(&cfg.RunAddr, "a", "localhost:8080", "address and port to run server")
 	}
 
 	flag.Parse()

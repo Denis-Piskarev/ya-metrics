@@ -23,20 +23,13 @@ type config struct {
 func NewConfig() (config, error) {
 	var cfg config
 
+	// Setting values by flags, if env not empty, using env
+	flag.StringVar(&cfg.RunAddr, "a", "localhost:8080", "address and port to run server")
+	flag.IntVar(&cfg.ReportInterval, "r", 10, "interval between report calls")
+	flag.IntVar(&cfg.PollInterval, "p", 2, "interval between polling calls")
+
 	if err := env.Parse(&cfg); err != nil {
 		return config{}, err
-	}
-
-	if cfg.RunAddr == "" {
-		flag.StringVar(&cfg.RunAddr, "a", "localhost:8080", "address and port to run server")
-	}
-
-	if cfg.ReportInterval == 0 {
-		flag.IntVar(&cfg.ReportInterval, "r", 10, "interval between report calls")
-	}
-
-	if cfg.PollInterval == 0 {
-		flag.IntVar(&cfg.PollInterval, "p", 2, "interval between polling calls")
 	}
 
 	flag.Parse()
