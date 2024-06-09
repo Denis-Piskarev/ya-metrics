@@ -1,6 +1,7 @@
 package memyandex
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -16,101 +17,121 @@ type MemStatsYaSt struct {
 	RandomValue float64
 }
 
-func (m *MemStatsYaSt) UpdateMetrics(pollInterval int) {
+func (m *MemStatsYaSt) UpdateMetrics(ctx context.Context, pollInterval int) {
 	runtime.ReadMemStats(m.RuntimeMem)
 	m.RandomValue = float64(m.RuntimeMem.Alloc) / float64(1024)
 	m.PollCount++
 
-	time.Sleep(time.Second * time.Duration(pollInterval))
+	withTimeout, cancel := context.WithTimeout(ctx, time.Duration(pollInterval)*time.Second)
+	defer cancel()
+	<-withTimeout.Done()
 }
 
-func (m *MemStatsYaSt) SendToServer(runAddr string, reportInterval int) {
+func (m *MemStatsYaSt) SendToServer(ctx context.Context, runAddr string, reportInterval int) {
 	// Alloc
-	sent(float64(m.RuntimeMem.Alloc), "Alloc", "gauge", runAddr)
+	sendGauge(float64(m.RuntimeMem.Alloc), "Alloc", "gauge", runAddr)
 
 	// BuckHashSys
-	sent(float64(m.RuntimeMem.BuckHashSys), "BuckHashSys", "gauge", runAddr)
+	sendGauge(float64(m.RuntimeMem.BuckHashSys), "BuckHashSys", "gauge", runAddr)
 
 	// Frees
-	sent(float64(m.RuntimeMem.Frees), "Frees", "gauge", runAddr)
+	sendGauge(float64(m.RuntimeMem.Frees), "Frees", "gauge", runAddr)
 
 	// GCCPUFraction
-	sent(m.RuntimeMem.GCCPUFraction, "GCCPUFraction", "gauge", runAddr)
+	sendGauge(m.RuntimeMem.GCCPUFraction, "GCCPUFraction", "gauge", runAddr)
 
 	// GCSys
-	sent(float64(m.RuntimeMem.GCSys), "GCSys", "gauge", runAddr)
+	sendGauge(float64(m.RuntimeMem.GCSys), "GCSys", "gauge", runAddr)
 
 	// HeapAlloc
-	sent(float64(m.RuntimeMem.HeapAlloc), "HeapAlloc", "gauge", runAddr)
+	sendGauge(float64(m.RuntimeMem.HeapAlloc), "HeapAlloc", "gauge", runAddr)
 
 	// HeapIdle
-	sent(float64(m.RuntimeMem.HeapIdle), "HeapIdle", "gauge", runAddr)
+	sendGauge(float64(m.RuntimeMem.HeapIdle), "HeapIdle", "gauge", runAddr)
 
 	// HeapObjects
-	sent(float64(m.RuntimeMem.HeapObjects), "HeapObjects", "gauge", runAddr)
+	sendGauge(float64(m.RuntimeMem.HeapObjects), "HeapObjects", "gauge", runAddr)
 
 	// HeapReleased
-	sent(float64(m.RuntimeMem.HeapReleased), "HeapReleased", "gauge", runAddr)
+	sendGauge(float64(m.RuntimeMem.HeapReleased), "HeapReleased", "gauge", runAddr)
 
 	// HeapSys
-	sent(float64(m.RuntimeMem.HeapSys), "HeapSys", "gauge", runAddr)
+	sendGauge(float64(m.RuntimeMem.HeapSys), "HeapSys", "gauge", runAddr)
 
 	// LastGC
-	sent(float64(m.RuntimeMem.LastGC), "LastGC", "gauge", runAddr)
+	sendGauge(float64(m.RuntimeMem.LastGC), "LastGC", "gauge", runAddr)
 
 	// Lookups
-	sent(float64(m.RuntimeMem.Lookups), "Lookups", "gauge", runAddr)
+	sendGauge(float64(m.RuntimeMem.Lookups), "Lookups", "gauge", runAddr)
 
 	// MCacheInuse
-	sent(float64(m.RuntimeMem.MCacheInuse), "MCacheInuse", "gauge", runAddr)
+	sendGauge(float64(m.RuntimeMem.MCacheInuse), "MCacheInuse", "gauge", runAddr)
 
 	// MCacheSys
-	sent(float64(m.RuntimeMem.MCacheSys), "MCacheSys", "gauge", runAddr)
+	sendGauge(float64(m.RuntimeMem.MCacheSys), "MCacheSys", "gauge", runAddr)
 
 	// MSpanInuse
-	sent(float64(m.RuntimeMem.MSpanInuse), "MSpanInuse", "gauge", runAddr)
+	sendGauge(float64(m.RuntimeMem.MSpanInuse), "MSpanInuse", "gauge", runAddr)
 
 	// MSpanSys
-	sent(float64(m.RuntimeMem.MSpanSys), "MSpanSys", "gauge", runAddr)
+	sendGauge(float64(m.RuntimeMem.MSpanSys), "MSpanSys", "gauge", runAddr)
 
 	// Mallocs
-	sent(float64(m.RuntimeMem.Mallocs), "Mallocs", "gauge", runAddr)
+	sendGauge(float64(m.RuntimeMem.Mallocs), "Mallocs", "gauge", runAddr)
 
 	// NextGC
-	sent(float64(m.RuntimeMem.NextGC), "NextGC", "gauge", runAddr)
+	sendGauge(float64(m.RuntimeMem.NextGC), "NextGC", "gauge", runAddr)
 
 	// NumForcedGC
-	sent(float64(m.RuntimeMem.NumForcedGC), "NumForcedGC", "gauge", runAddr)
+	sendGauge(float64(m.RuntimeMem.NumForcedGC), "NumForcedGC", "gauge", runAddr)
 
 	// NumGC
-	sent(float64(m.RuntimeMem.NumGC), "NumGC", "gauge", runAddr)
+	sendGauge(float64(m.RuntimeMem.NumGC), "NumGC", "gauge", runAddr)
 
 	// OtherSys
-	sent(float64(m.RuntimeMem.OtherSys), "OtherSys", "gauge", runAddr)
+	sendGauge(float64(m.RuntimeMem.OtherSys), "OtherSys", "gauge", runAddr)
 
 	// PauseTotalNs
-	sent(float64(m.RuntimeMem.PauseTotalNs), "PauseTotalNs", "gauge", runAddr)
+	sendGauge(float64(m.RuntimeMem.PauseTotalNs), "PauseTotalNs", "gauge", runAddr)
 
 	// StackInuse
-	sent(float64(m.RuntimeMem.StackInuse), "StackInuse", "gauge", runAddr)
+	sendGauge(float64(m.RuntimeMem.StackInuse), "StackInuse", "gauge", runAddr)
 
 	// Sys
-	sent(float64(m.RuntimeMem.Sys), "Sys", "gauge", runAddr)
+	sendGauge(float64(m.RuntimeMem.Sys), "Sys", "gauge", runAddr)
 
 	// TotalAlloc
-	sent(float64(m.RuntimeMem.TotalAlloc), "TotalAlloc", "gauge", runAddr)
+	sendGauge(float64(m.RuntimeMem.TotalAlloc), "TotalAlloc", "gauge", runAddr)
 
 	// PollCount
-	sent(float64(m.PollCount), "PollCount", "counter", runAddr)
+	sendCounter(m.PollCount, "PollCount", "counter", runAddr)
 
 	// RandomValue
-	sent(m.RandomValue, "RandomValue", "gauge", runAddr)
+	sendGauge(m.RandomValue, "RandomValue", "gauge", runAddr)
 
-	time.Sleep(time.Duration(reportInterval) * time.Second)
+	WithTimeout, cancel := context.WithTimeout(ctx, time.Duration(reportInterval)*time.Second)
+	defer cancel()
+
+	<-WithTimeout.Done()
 }
 
-func sent(variable any, name, vType, addr string) {
+// For sending gouge metric to server
+func sendGauge(variable float64, name, vType, addr string) {
 	res, err := http.Post(fmt.Sprintf(URL+"%s/%s/%v", addr, vType, name, variable), "text/plain", nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer res.Body.Close()
+
+	if res.StatusCode != 200 {
+		log.Fatalf("status code error: %d", res.StatusCode)
+	}
+}
+
+// For sending counter metric to server
+func sendCounter(variable int64, name, vType, addr string) {
+	res, err := http.Post(fmt.Sprintf(URL+"%s/%s/%d", addr, vType, name, variable), "text/plain", nil)
 	if err != nil {
 		log.Fatal(err)
 	}
