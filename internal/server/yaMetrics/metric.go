@@ -34,15 +34,17 @@ func NewMemStorage() *MemStorage {
 }
 
 // Запись метрики типа Gauge
-func (m *MemStorage) WriteGauge(name string, val float64) error {
+func (m *MemStorage) WriteGauge(name string, val float64) (float64, error) {
+	old := m.Gauge[name]
 	m.Gauge[name] = val
-	return nil
+	return old, nil
 }
 
 // Запись метрики типа Counter
-func (m *MemStorage) WriteCounter(name string, val int64) error {
+func (m *MemStorage) WriteCounter(name string, val int64) (int64, error) {
+	old := m.Counter[name]
 	m.Counter[name] += val
-	return nil
+	return old, nil
 }
 
 // Получение всех метрик
