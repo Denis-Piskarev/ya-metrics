@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -49,6 +48,7 @@ func (h *Handler) createMetric(rw http.ResponseWriter, r *http.Request) {
 		http.Error(rw, "wrong type", http.StatusNotFound)
 		return
 	}
+
 	rw.WriteHeader(http.StatusOK)
 }
 
@@ -64,7 +64,7 @@ func (h *Handler) GetMetric(rw http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		rw.Write([]byte(fmt.Sprint("%v", val)))
+		rw.Write([]byte(strconv.Itoa(int(val))))
 	case "gauge":
 		val, err := h.Metrics.GetGauge(name)
 		if err != nil {
@@ -72,12 +72,19 @@ func (h *Handler) GetMetric(rw http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		rw.Write([]byte(fmt.Sprint("%v", val)))
+		resp, err := json.Marshal(val)
+		if err != nil {
+			http.Error(rw, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		rw.Write(resp)
 	default:
 		http.Error(rw, "wrong type", http.StatusNotFound)
 		return
 	}
 
+	rw.WriteHeader(http.StatusOK)
 }
 
 func (h *Handler) createMetricV2(rw http.ResponseWriter, r *http.Request) {

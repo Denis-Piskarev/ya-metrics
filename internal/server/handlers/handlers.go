@@ -27,19 +27,23 @@ func InitRouter(logger zap.SugaredLogger) http.Handler {
 
 	h := NewHandler()
 
+	// Получение всех метрик в HTML
 	r.Get("/", h.GetMetrics)
 
 	r.Route("/", func(r chi.Router) {
 		r.Use(middleware.AllowContentType("application/json"))
 
-		// Обновление метрик
-		r.Post("/{type}/{name}/{value}", h.createMetric)
+		// Обновление метрик v1
+		r.Post("/update/{type}/{name}/{value}", h.createMetric)
+
+		// Обновление метрик v2
 		r.Post("/update", h.createMetricV2)
 
-		// Получение метрик по json
+		// Получение метрик v2
 		r.Post("/", h.GetMetricV2)
 	})
 
+	// Получение метрик v1
 	r.Get("/value/{type}/{name}", h.GetMetric)
 
 	return r
