@@ -103,22 +103,22 @@ func (h *Handler) createMetricV2(rw http.ResponseWriter, r *http.Request) {
 
 	switch request.MType {
 	case "counter":
-		old, err := h.Metrics.WriteCounter(request.ID, *request.Delta)
+		newVal, err := h.Metrics.WriteCounter(request.ID, *request.Delta)
 		if err != nil {
 			http.Error(rw, err.Error(), http.StatusBadRequest)
 			return
 		}
 
-		request.Delta = &old
+		request.Delta = &newVal
 
 	case "gauge":
-		old, err := h.Metrics.WriteGauge(request.ID, *request.Value)
+		newVal, err := h.Metrics.WriteGauge(request.ID, *request.Value)
 		if err != nil {
 			http.Error(rw, err.Error(), http.StatusBadRequest)
 			return
 		}
 
-		request.Value = &old
+		request.Value = &newVal
 	default:
 		http.Error(rw, "wrong type", http.StatusBadRequest)
 		return
