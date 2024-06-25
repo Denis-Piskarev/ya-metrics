@@ -28,7 +28,7 @@ func (h *Handler) createMetric(rw http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if err := h.Metrics.WriteCounter(nameMetric, val); err != nil {
+		if _, err := h.Metrics.WriteCounter(nameMetric, val); err != nil {
 			http.Error(rw, err.Error(), http.StatusBadRequest)
 			return
 		}
@@ -40,7 +40,7 @@ func (h *Handler) createMetric(rw http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if err := h.Metrics.WriteGauge(nameMetric, val); err != nil {
+		if _, err := h.Metrics.WriteGauge(nameMetric, val); err != nil {
 			http.Error(rw, err.Error(), http.StatusBadRequest)
 			return
 		}
