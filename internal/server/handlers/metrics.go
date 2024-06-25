@@ -2,13 +2,85 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/DenisquaP/ya-metrics/pkg/models"
+	"github.com/go-chi/chi"
 )
 
 func (h *Handler) createMetric(rw http.ResponseWriter, r *http.Request) {
+	typeMetric := chi.URLParam(r, "type")
+	nameMetric := chi.URLParam(r, "name")
+	valueMetric := chi.URLParam(r, "value")
+
+	if nameMetric == "" {
+		http.Error(rw, "empty name", http.StatusNotFound)
+		return
+	}
+
+	switch typeMetric {
+	case "counter":
+		val, err := strconv.ParseInt(valueMetric, 10, 64)
+		if err != nil {
+			http.Error(rw, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		if err := h.Metrics.WriteCounter(nameMetric, val); err != nil {
+			http.Error(rw, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+	case "gauge":
+		val, err := strconv.ParseFloat(valueMetric, 64)
+		if err != nil {
+			http.Error(rw, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		if err := h.Metrics.WriteGauge(nameMetric, val); err != nil {
+			http.Error(rw, err.Error(), http.StatusBadRequest)
+			return
+		}
+	default:
+		http.Error(rw, "wrong type", http.StatusNotFound)
+		return
+	}
+	rw.WriteHeader(http.StatusOK)
+}
+
+func (h *Handler) GetMetric(rw http.ResponseWriter, r *http.Request) {
+	typeMet := chi.URLParam(r, "type")
+	name := chi.URLParam(r, "name")
+
+	switch typeMet {
+	case "counter":
+		val, err := h.Metrics.GetCounter(name)
+		if err != nil {
+			http.Error(rw, err.Error(), http.StatusNotFound)
+			return
+		}
+
+		rw.Write([]byte(fmt.Sprint("%v", val)))
+	case "gauge":
+		val, err := h.Metrics.GetGauge(name)
+		if err != nil {
+			http.Error(rw, err.Error(), http.StatusNotFound)
+			return
+		}
+
+		rw.Write([]byte(fmt.Sprint("%v", val)))
+	default:
+		http.Error(rw, "wrong type", http.StatusNotFound)
+		return
+	}
+
+}
+
+func (h *Handler) createMetricV2(rw http.ResponseWriter, r *http.Request) {
 	var request models.Metrics
 
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
@@ -55,7 +127,7 @@ func (h *Handler) createMetric(rw http.ResponseWriter, r *http.Request) {
 	rw.WriteHeader(http.StatusOK)
 }
 
-func (h *Handler) GetMetric(rw http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetMetricV2(rw http.ResponseWriter, r *http.Request) {
 	var request models.Metrics
 	var response models.Metrics
 
