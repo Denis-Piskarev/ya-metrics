@@ -1,15 +1,19 @@
 package memyandex
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"runtime"
 	"time"
+
+	"github.com/DenisquaP/ya-metrics/pkg/models"
 )
 
-const URL = "http://%s/update/"
+const URL = "http://%s/update"
 
 type MemStatsYaSt struct {
 	RuntimeMem  *runtime.MemStats
@@ -117,7 +121,18 @@ func (m *MemStatsYaSt) SendToServer(ctx context.Context, runAddr string, reportI
 
 // For sending gouge metric to server
 func sendGauge(variable float64, name, vType, addr string) {
-	res, err := http.Post(fmt.Sprintf(URL+"%s/%s/%v", addr, vType, name, variable), "text/plain", nil)
+	req := models.Metrics{
+		ID:    name,
+		Value: &variable,
+		MType: vType,
+	}
+
+	body, err := json.Marshal(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	res, err := http.Post(fmt.Sprintf(URL, addr), "application/json", bytes.NewBuffer(body))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -131,7 +146,18 @@ func sendGauge(variable float64, name, vType, addr string) {
 
 // For sending counter metric to server
 func sendCounter(variable int64, name, vType, addr string) {
-	res, err := http.Post(fmt.Sprintf(URL+"%s/%s/%d", addr, vType, name, variable), "text/plain", nil)
+	req := models.Metrics{
+		ID:    name,
+		Delta: &variable,
+		MType: vType,
+	}
+
+	body, err := json.Marshal(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	res, err := http.Post(fmt.Sprintf(URL, addr), "application/json", bytes.NewBuffer(body))
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -1,42 +1,105 @@
 package handlers
 
 import (
+	"encoding/json"
 	"net/http"
 	"strings"
 
-	"github.com/go-chi/chi"
+	"github.com/DenisquaP/ya-metrics/pkg/models"
 )
 
 func (h *Handler) createMetric(rw http.ResponseWriter, r *http.Request) {
-	typeMetric := chi.URLParam(r, "type")
-	nameMetric := chi.URLParam(r, "name")
-	valueMetric := chi.URLParam(r, "value")
+	var request models.Metrics
 
-	if nameMetric == "" {
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		http.Error(rw, err.Error(), http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	if request.ID == "" {
 		http.Error(rw, "empty name", http.StatusNotFound)
 		return
 	}
 
-	if err := h.Metrics.WriteMetric(nameMetric, typeMetric, valueMetric); err != nil {
-		http.Error(rw, err.Error(), http.StatusBadRequest)
+	switch request.MType {
+	case "counter":
+		if err := h.Metrics.WriteCounter(request.ID, *request.Delta); err != nil {
+			http.Error(rw, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+	case "gauge":
+		if err := h.Metrics.WriteGauge(request.ID, *request.Value); err != nil {
+			http.Error(rw, err.Error(), http.StatusBadRequest)
+			return
+		}
+	default:
+		http.Error(rw, "wrong type", http.StatusNotFound)
 		return
 	}
-	
+
+	resp, err := json.Marshal(request)
+	if err != nil {
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	_, err = rw.Write(resp)
+	if err != nil {
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	rw.Header().Set("Content-Type", "application/json")
 	rw.WriteHeader(http.StatusOK)
 }
 
 func (h *Handler) GetMetric(rw http.ResponseWriter, r *http.Request) {
-	typeMet := chi.URLParam(r, "type")
-	name := chi.URLParam(r, "name")
+	var request models.Metrics
+	var response models.Metrics
 
-	val, err := h.Metrics.GetMetric(typeMet, name)
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		http.Error(rw, err.Error(), http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	switch request.MType {
+	case "counter":
+		c, err := h.Metrics.GetCounter(request.ID)
+		if err != nil {
+			http.Error(rw, err.Error(), http.StatusNotFound)
+			return
+		}
+		response.ID = request.ID
+		response.MType = request.MType
+		response.Delta = &c
+	case "gauge":
+		g, err := h.Metrics.GetGauge(request.ID)
+		if err != nil {
+			http.Error(rw, err.Error(), http.StatusNotFound)
+			return
+		}
+		response.ID = request.ID
+		response.MType = request.MType
+		response.Value = &g
+	default:
+		http.Error(rw, "wrong type", http.StatusNotFound)
+		return
+	}
+
+	res, err := json.Marshal(response)
 	if err != nil {
-		http.Error(rw, err.Error(), http.StatusNotFound)
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	rw.WriteHeader(http.StatusOK)
-	rw.Write([]byte(val))
+	if _, err = rw.Write(res); err != nil {
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 func (h *Handler) GetMetrics(rw http.ResponseWriter, r *http.Request) {

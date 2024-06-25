@@ -29,13 +29,13 @@ func InitRouter(logger zap.SugaredLogger) http.Handler {
 
 	r.Get("/", h.GetMetrics)
 
-	r.Route("/update", func(r chi.Router) {
-		r.Use(middleware.AllowContentType("text/plain"))
+	r.Route("/", func(r chi.Router) {
+		r.Use(middleware.AllowContentType("application/json"))
 
-		r.Post("/{type}/{name}/{value}", h.createMetric)
+		r.Post("/update", h.createMetric)
+
+		r.Post("/", h.GetMetric)
 	})
-
-	r.Get("/value/{type}/{name}", h.GetMetric)
 
 	return r
 }
