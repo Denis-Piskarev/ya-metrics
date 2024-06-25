@@ -45,7 +45,7 @@ func (h *Handler) createMetric(rw http.ResponseWriter, r *http.Request) {
 			return
 		}
 	default:
-		http.Error(rw, "wrong type", http.StatusNotFound)
+		http.Error(rw, "wrong type", http.StatusBadRequest)
 		return
 	}
 
@@ -80,7 +80,7 @@ func (h *Handler) GetMetric(rw http.ResponseWriter, r *http.Request) {
 
 		rw.Write(resp)
 	default:
-		http.Error(rw, "wrong type", http.StatusNotFound)
+		http.Error(rw, "wrong type", http.StatusBadRequest)
 		return
 	}
 
@@ -114,7 +114,7 @@ func (h *Handler) createMetricV2(rw http.ResponseWriter, r *http.Request) {
 			return
 		}
 	default:
-		http.Error(rw, "wrong type", http.StatusNotFound)
+		http.Error(rw, "wrong type", http.StatusBadRequest)
 		return
 	}
 
@@ -164,7 +164,7 @@ func (h *Handler) GetMetricV2(rw http.ResponseWriter, r *http.Request) {
 		response.MType = request.MType
 		response.Value = &g
 	default:
-		http.Error(rw, "wrong type", http.StatusNotFound)
+		http.Error(rw, "wrong type", http.StatusBadRequest)
 		return
 	}
 
