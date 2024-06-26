@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -154,7 +155,8 @@ func (h *Handler) GetMetricV2(rw http.ResponseWriter, r *http.Request) {
 	case "counter":
 		c, err := h.Metrics.GetCounter(request.ID)
 		if err != nil {
-			http.Error(rw, err.Error(), http.StatusNotFound)
+			log.Println(err.Error() + "[c]")
+			http.Error(rw, err.Error()+"not found counter", http.StatusNotFound)
 			return
 		}
 		response.ID = request.ID
@@ -163,7 +165,8 @@ func (h *Handler) GetMetricV2(rw http.ResponseWriter, r *http.Request) {
 	case "gauge":
 		g, err := h.Metrics.GetGauge(request.ID)
 		if err != nil {
-			http.Error(rw, err.Error(), http.StatusNotFound)
+			log.Println(err.Error() + "[g]")
+			http.Error(rw, err.Error()+"not found gauge", http.StatusNotFound)
 			return
 		}
 		response.ID = request.ID
