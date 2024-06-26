@@ -180,6 +180,7 @@ func (h *Handler) GetMetricV2(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	rw.Header().Set("Content-Type", "application/json")
 	rw.WriteHeader(http.StatusOK)
 	if _, err = rw.Write(res); err != nil {
 		http.Error(rw, err.Error(), http.StatusInternalServerError)
