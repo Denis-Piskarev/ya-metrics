@@ -13,7 +13,7 @@ import (
 	"github.com/DenisquaP/ya-metrics/pkg/models"
 )
 
-const URL = "http://%s/update"
+const URL = "http://%s/update/"
 
 type MemStatsYaSt struct {
 	RuntimeMem  *runtime.MemStats
