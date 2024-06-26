@@ -37,7 +37,7 @@ func InitRouter(logger zap.SugaredLogger) http.Handler {
 		r.Post("/update/{type}/{name}/{value}", h.createMetric)
 
 		// Обновление метрик v2
-		r.Post("/update", h.createMetricV2)
+		r.Post("/update/", h.createMetricV2)
 
 		// Получение метрик v2
 		r.Post("/value/", h.GetMetricV2)
