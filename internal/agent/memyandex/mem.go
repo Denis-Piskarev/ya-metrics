@@ -123,8 +123,8 @@ func (m *MemStatsYaSt) SendToServer(ctx context.Context, runAddr string, reportI
 func sendGauge(variable float64, name, vType, addr string) {
 	req := models.Metrics{
 		ID:    name,
-		Value: &variable,
 		MType: vType,
+		Value: &variable,
 	}
 
 	body, err := json.Marshal(req)
@@ -148,8 +148,8 @@ func sendGauge(variable float64, name, vType, addr string) {
 func sendCounter(variable int64, name, vType, addr string) {
 	req := models.Metrics{
 		ID:    name,
-		Delta: &variable,
 		MType: vType,
+		Delta: &variable,
 	}
 
 	body, err := json.Marshal(req)
