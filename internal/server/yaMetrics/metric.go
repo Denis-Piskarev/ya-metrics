@@ -2,15 +2,14 @@ package yametrics
 
 import (
 	"fmt"
-	"log"
 )
 
 type Metric interface {
 	MetricGetter
-	MetricWrirer
+	MetricWriter
 }
 
-type MetricWrirer interface {
+type MetricWriter interface {
 	WriteGouge(name string, val float64) error
 	WriteCounter(name string, val int64) error
 }
@@ -63,7 +62,6 @@ func (m *MemStorage) GetMetrics() string {
 // Получение метрики типа Gauge
 func (m *MemStorage) GetGauge(name string) (float64, error) {
 	g, ok := m.Gauge[name]
-	log.Println(ok, name, g)
 	if !ok {
 		return 0, fmt.Errorf("variable does not exists")
 	}
@@ -74,7 +72,6 @@ func (m *MemStorage) GetGauge(name string) (float64, error) {
 // Получение метрики типа Counter
 func (m *MemStorage) GetCounter(name string) (int64, error) {
 	c, ok := m.Counter[name]
-	log.Println(ok, name, c)
 	if !ok {
 		return 0, fmt.Errorf("variable does not exists")
 	}
