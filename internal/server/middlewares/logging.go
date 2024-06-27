@@ -14,16 +14,16 @@ import (
 func Logging(logger zap.SugaredLogger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			body, err := io.ReadAll(r.Body)
-			if err != nil {
-				logger.Error(err)
-			}
-			r.Body = io.NopCloser(bytes.NewBuffer(body))
+			//body, err := io.ReadAll(r.Body)
+			//if err != nil {
+				//logger.Error(err)
+			//}
+			//r.Body = io.NopCloser(bytes.NewBuffer(body))
 
-			var jsBody models.Metrics
-			if err := json.Unmarshal(body, &jsBody); err != nil {
-				logger.Error(err)
-			}
+			//var jsBody models.Metrics
+			//if err := json.Unmarshal(body, &jsBody); err != nil {
+				//logger.Error(err)
+			//}
 
 			ts := time.Now()
 
@@ -39,13 +39,13 @@ func Logging(logger zap.SugaredLogger) func(http.Handler) http.Handler {
 			// request logging
 			logger.Infow("request", "method", r.Method, "url", r.URL, "time", time.Since(ts), "body", jsBody)
 
-			var jsBody2 models.Metrics
-			if err := json.Unmarshal(lw.responseData.body, &jsBody2); err != nil {
-				logger.Error(err)
-			}
+			//var jsBody2 models.Metrics
+			//if err := json.Unmarshal(lw.responseData.body, &jsBody2); err != nil {
+				//logger.Error(err)
+			//}
 
 			// response logging
-			logger.Infow("response", "status", lw.responseData.status, "size", lw.responseData.size, "body", jsBody2)
+			logger.Infow("response", "status", lw.responseData.status, "size", lw.responseData.size)
 		})
 	}
 }
@@ -54,7 +54,6 @@ type (
 	responseData struct {
 		status int
 		size   int
-		body   []byte
 	}
 
 	loggingResponseWriter struct {
@@ -65,7 +64,6 @@ type (
 
 func (r *loggingResponseWriter) Write(b []byte) (int, error) {
 	size, err := r.ResponseWriter.Write(b)
-	r.responseData.body = b
 	r.responseData.size += size // захватываем размер
 	return size, err
 }
