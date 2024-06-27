@@ -1,13 +1,10 @@
 package middlewares
 
 import (
-	"bytes"
-	"encoding/json"
-	"io"
+	
 	"net/http"
 	"time"
 
-	"github.com/DenisquaP/ya-metrics/pkg/models"
 	"go.uber.org/zap"
 )
 
@@ -37,7 +34,7 @@ func Logging(logger zap.SugaredLogger) func(http.Handler) http.Handler {
 			next.ServeHTTP(&lw, r)
 
 			// request logging
-			logger.Infow("request", "method", r.Method, "url", r.URL, "time", time.Since(ts), "body", jsBody)
+			logger.Infow("request", "method", r.Method, "url", r.URL, "time", time.Since(ts))
 
 			//var jsBody2 models.Metrics
 			//if err := json.Unmarshal(lw.responseData.body, &jsBody2); err != nil {
