@@ -122,7 +122,9 @@ func (m *MemStatsYaSt) SendToServer(ctx context.Context, runAddr string, reportI
 		{Gauge(float64(m.RuntimeMem.PauseTotalNs)), "PauseTotalNs"},
 		{Gauge(float64(m.RuntimeMem.StackInuse)), "StackInuse"},
 		{Gauge(float64(m.RuntimeMem.Sys)), "Sys"},
+		{Gauge(float64(m.RuntimeMem.StackSys)), "StackSys"},
 		{Gauge(float64(m.RuntimeMem.TotalAlloc)), "TotalAlloc"},
+		{Gauge(float64(m.RuntimeMem.HeapInuse)), "HeapInuse"},
 		{Gauge(m.RandomValue), "RandomValue"},
 	}
 
