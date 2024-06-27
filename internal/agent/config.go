@@ -46,6 +46,8 @@ func Run() {
 
 	ctx := context.Background()
 
-	mem.UpdateMetrics(ctx, cfg.PollInterval)
-	mem.SendToServer(ctx, cfg.RunAddr, cfg.ReportInterval)
+	for {
+		mem.UpdateMetrics(ctx, cfg.PollInterval)
+		mem.SendToServer(ctx, cfg.RunAddr, cfg.ReportInterval)
+	}
 }
