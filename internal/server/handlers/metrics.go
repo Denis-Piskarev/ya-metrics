@@ -198,6 +198,7 @@ func (h *Handler) GetMetrics(rw http.ResponseWriter, r *http.Request) {
 
 	metHTML := strings.Replace(HTMLMet, "{{metrics}}", metrics, -1)
 
+	rw.Header().Set("Content-Type", "text/html")
 	rw.WriteHeader(http.StatusOK)
 	rw.Write([]byte(metHTML))
 }
