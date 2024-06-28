@@ -15,21 +15,20 @@ type Handler struct {
 	Metrics *yametrics.MemStorage
 }
 
-func NewHandler() *Handler {
-	metrics := yametrics.NewMemStorage()
+func NewHandler(metrics *yametrics.MemStorage) *Handler {
 	return &Handler{
 		Metrics: metrics,
 	}
 }
 
-func InitRouter(logger zap.SugaredLogger) http.Handler {
+func InitRouter(logger zap.SugaredLogger, metrics *yametrics.MemStorage) http.Handler {
 	r := chi.NewRouter()
 	r.Use(middlewares.Logging(logger))
 
 	// Middleware для сжатия
 	r.Use(middlewares.Commpression)
 
-	h := NewHandler()
+	h := NewHandler(metrics)
 
 	// Получение всех метрик в HTML
 	r.Get("/", h.GetMetrics)

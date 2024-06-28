@@ -5,6 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	yametrics "github.com/DenisquaP/ya-metrics/internal/server/yaMetrics"
 	"github.com/go-resty/resty/v2"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
@@ -47,7 +48,9 @@ func TestCreateMetrics(t *testing.T) {
 			expectedCode: http.StatusBadRequest,
 		},
 	}
-	srv := httptest.NewServer(InitRouter(suggared))
+
+	mem := yametrics.NewMemStorage("mem.json")
+	srv := httptest.NewServer(InitRouter(suggared, mem))
 	defer srv.Close()
 
 	for _, tt := range tests {
