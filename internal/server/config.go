@@ -5,9 +5,10 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/DenisquaP/ya-metrics/internal/server/handlers"
 	"github.com/caarlos0/env/v11"
 	"go.uber.org/zap"
+
+	"github.com/DenisquaP/ya-metrics/internal/server/handlers"
 )
 
 type config struct {

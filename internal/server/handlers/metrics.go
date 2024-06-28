@@ -7,8 +7,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/DenisquaP/ya-metrics/pkg/models"
 	"github.com/go-chi/chi"
+
+	"github.com/DenisquaP/ya-metrics/pkg/models"
 )
 
 func (h *Handler) createMetric(rw http.ResponseWriter, r *http.Request) {

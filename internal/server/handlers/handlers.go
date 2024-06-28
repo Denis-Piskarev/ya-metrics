@@ -3,11 +3,12 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/DenisquaP/ya-metrics/internal/server/middlewares"
-	yametrics "github.com/DenisquaP/ya-metrics/internal/server/yaMetrics"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"go.uber.org/zap"
+
+	"github.com/DenisquaP/ya-metrics/internal/server/middlewares"
+	yametrics "github.com/DenisquaP/ya-metrics/internal/server/yaMetrics"
 )
 
 type Handler struct {
@@ -25,12 +26,16 @@ func InitRouter(logger zap.SugaredLogger) http.Handler {
 	r := chi.NewRouter()
 	r.Use(middlewares.Logging(logger))
 
+	// Middleware для сжатия
+	r.Use(middlewares.Commpression)
+
 	h := NewHandler()
 
 	// Получение всех метрик в HTML
 	r.Get("/", h.GetMetrics)
 
 	r.Route("/", func(r chi.Router) {
+		// Middleware для проверки ContentType
 		r.Use(middleware.AllowContentType("application/json"))
 
 		// Обновление метрик v1

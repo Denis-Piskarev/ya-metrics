@@ -6,8 +6,9 @@ import (
 	"log"
 	"runtime"
 
-	"github.com/DenisquaP/ya-metrics/internal/agent/memyandex"
 	"github.com/caarlos0/env/v11"
+
+	"github.com/DenisquaP/ya-metrics/internal/agent/memyandex"
 )
 
 type config struct {

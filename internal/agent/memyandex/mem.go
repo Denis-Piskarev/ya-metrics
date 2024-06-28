@@ -2,6 +2,7 @@ package memyandex
 
 import (
 	"bytes"
+	"compress/gzip"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -34,14 +35,34 @@ func (c Counter) Send(addr, name string) error {
 		return err
 	}
 
-	res, err := http.Post(fmt.Sprintf(URL, addr), "application/json", bytes.NewBuffer(body))
+	var buf bytes.Buffer
+	gz := gzip.NewWriter(&buf)
+	defer gz.Close()
+
+	if _, err = gz.Write(body); err != nil {
+		return err
+	}
+
+	if err = gz.Flush(); err != nil {
+		return err
+	}
+
+	client := http.Client{}
+	reqw, err := http.NewRequest("POST", fmt.Sprintf(URL, addr), &buf)
 	if err != nil {
 		return err
 	}
-	defer res.Body.Close()
+	reqw.Header.Set("Content-Type", "application/json")
+	reqw.Header.Set("Content-Encoding", "gzip")
+	reqw.Header.Set("Accept-Encoding", "gzip")
 
-	if res.StatusCode != 200 {
-		return fmt.Errorf("not expected status code: %d", res.StatusCode)
+	resp, err := client.Do(reqw)
+	if err != nil {
+		return err
+	}
+
+	if resp.StatusCode != 200 {
+		return fmt.Errorf("not expected status code: %d", resp.StatusCode)
 	}
 
 	return nil
@@ -55,19 +76,41 @@ func (g Gauge) Send(addr, name string) error {
 		Value: &floatG,
 	}
 
+	var buf bytes.Buffer
+	gz := gzip.NewWriter(&buf)
+	defer gz.Close()
+
 	body, err := json.Marshal(req)
 	if err != nil {
 		return err
 	}
 
-	res, err := http.Post(fmt.Sprintf(URL, addr), "application/json", bytes.NewBuffer(body))
+	if _, err := gz.Write(body); err != nil {
+		return err
+	}
+
+	if err := gz.Flush(); err != nil {
+		return err
+	}
+
+	client := http.Client{}
+
+	reqw, err := http.NewRequest("POST", fmt.Sprintf(URL, addr), &buf)
 	if err != nil {
 		return err
 	}
-	defer res.Body.Close()
+	reqw.Header.Set("Content-Type", "application/json")
+	reqw.Header.Set("Content-Encoding", "gzip")
+	reqw.Header.Set("Accept-Encoding", "gzip")
 
-	if res.StatusCode != 200 {
-		return fmt.Errorf("not expected status code: %d", res.StatusCode)
+	resp, err := client.Do(reqw)
+
+	if err != nil {
+		return err
+	}
+
+	if resp.StatusCode != 200 {
+		return fmt.Errorf("not expected status code: %d", resp.StatusCode)
 	}
 
 	return nil
