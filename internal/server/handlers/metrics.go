@@ -58,6 +58,8 @@ func (h *Handler) GetMetric(rw http.ResponseWriter, r *http.Request) {
 	typeMet := chi.URLParam(r, "type")
 	name := chi.URLParam(r, "name")
 
+	var resp []byte
+
 	switch typeMet {
 	case "counter":
 		val, err := h.Metrics.GetCounter(name)
@@ -66,7 +68,7 @@ func (h *Handler) GetMetric(rw http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		rw.Write([]byte(strconv.Itoa(int(val))))
+		resp = []byte(strconv.FormatInt(val, 10))
 	case "gauge":
 		val, err := h.Metrics.GetGauge(name)
 		if err != nil {
@@ -74,19 +76,19 @@ func (h *Handler) GetMetric(rw http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		resp, err := json.Marshal(val)
-		if err != nil {
-			http.Error(rw, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		rw.Write(resp)
+		resp = []byte(strconv.FormatFloat(val, 'f', -1, 64))
 	default:
 		http.Error(rw, "wrong type", http.StatusBadRequest)
 		return
 	}
 
+	log.Println(string(resp))
+
 	rw.WriteHeader(http.StatusOK)
+	if _, err := rw.Write(resp); err != nil {
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 func (h *Handler) createMetricV2(rw http.ResponseWriter, r *http.Request) {
@@ -132,14 +134,13 @@ func (h *Handler) createMetricV2(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = rw.Write(resp)
-	if err != nil {
+	rw.Header().Set("Content-Type", "application/json")
+	rw.WriteHeader(http.StatusOK)
+
+	if _, err = rw.Write(resp); err != nil {
 		http.Error(rw, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
-	rw.Header().Set("Content-Type", "application/json")
-	rw.WriteHeader(http.StatusOK)
 }
 
 func (h *Handler) GetMetricV2(rw http.ResponseWriter, r *http.Request) {

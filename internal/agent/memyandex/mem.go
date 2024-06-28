@@ -60,6 +60,7 @@ func (c Counter) Send(addr, name string) error {
 	if err != nil {
 		return err
 	}
+	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
 		return fmt.Errorf("not expected status code: %d", resp.StatusCode)
@@ -104,10 +105,10 @@ func (g Gauge) Send(addr, name string) error {
 	reqw.Header.Set("Accept-Encoding", "gzip")
 
 	resp, err := client.Do(reqw)
-
 	if err != nil {
 		return err
 	}
+	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
 		return fmt.Errorf("not expected status code: %d", resp.StatusCode)
