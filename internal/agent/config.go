@@ -43,6 +43,7 @@ func Run() {
 		log.Fatal(err)
 	}
 
+	// Creating struct for collecting metrics
 	mem := memyandex.MemStatsYaSt{RuntimeMem: &runtime.MemStats{}}
 
 	ctx := context.Background()

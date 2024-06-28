@@ -35,10 +35,12 @@ func (c Counter) Send(addr, name string) error {
 		return err
 	}
 
+	// Creating a new gzip writer
 	var buf bytes.Buffer
 	gz := gzip.NewWriter(&buf)
 	defer gz.Close()
 
+	// Writing the body to the gzip writer
 	if _, err = gz.Write(body); err != nil {
 		return err
 	}
@@ -47,6 +49,7 @@ func (c Counter) Send(addr, name string) error {
 		return err
 	}
 
+	// Sending request with compressed data
 	client := http.Client{}
 	reqw, err := http.NewRequest("POST", fmt.Sprintf(URL, addr), &buf)
 	if err != nil {
@@ -77,6 +80,7 @@ func (g Gauge) Send(addr, name string) error {
 		Value: &floatG,
 	}
 
+	// Creating a new gzip writer
 	var buf bytes.Buffer
 	gz := gzip.NewWriter(&buf)
 	defer gz.Close()
@@ -86,6 +90,7 @@ func (g Gauge) Send(addr, name string) error {
 		return err
 	}
 
+	// Writing the body to the gzip writer
 	if _, err := gz.Write(body); err != nil {
 		return err
 	}
@@ -96,6 +101,7 @@ func (g Gauge) Send(addr, name string) error {
 
 	client := http.Client{}
 
+	// Sending request with compressed data
 	reqw, err := http.NewRequest("POST", fmt.Sprintf(URL, addr), &buf)
 	if err != nil {
 		return err
@@ -138,6 +144,7 @@ func (m *MemStatsYaSt) UpdateMetrics(ctx context.Context, pollInterval int) {
 }
 
 func (m *MemStatsYaSt) SendToServer(ctx context.Context, runAddr string, reportInterval int) error {
+	// Map of gauge metrics
 	fields := []struct {
 		value Gauge
 		name  string
@@ -172,12 +179,14 @@ func (m *MemStatsYaSt) SendToServer(ctx context.Context, runAddr string, reportI
 		{Gauge(m.RandomValue), "RandomValue"},
 	}
 
+	// Sending gauge metrics
 	for _, field := range fields {
 		if err := Send(field.value, runAddr, field.name); err != nil {
 			return err
 		}
 	}
 
+	// Sending counter metric
 	if err := Send(Counter(m.PollCount), runAddr, "PollCount"); err != nil {
 		return err
 	}
