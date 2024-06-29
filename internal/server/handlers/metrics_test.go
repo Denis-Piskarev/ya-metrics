@@ -17,7 +17,7 @@ func TestCreateMetrics(t *testing.T) {
 	require.NoError(t, err)
 	defer logger.Sync()
 
-	suggared := *logger.Sugar()
+	suggared := logger.Sugar()
 
 	tests := []struct {
 		name         string
@@ -51,7 +51,7 @@ func TestCreateMetrics(t *testing.T) {
 	}
 
 	mem := yametrics.NewMemStorage("mem.json")
-	srv := httptest.NewServer(InitRouter(suggared, mem))
+	srv := httptest.NewServer(NewRouterWithMiddlewares(suggared, mem))
 	defer srv.Close()
 
 	for _, tt := range tests {

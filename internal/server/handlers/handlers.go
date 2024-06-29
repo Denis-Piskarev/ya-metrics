@@ -21,7 +21,7 @@ func NewHandler(metrics *yametrics.MemStorage) *Handler {
 	}
 }
 
-func InitRouter(logger zap.SugaredLogger, metrics *yametrics.MemStorage) http.Handler {
+func NewRouterWithMiddlewares(logger *zap.SugaredLogger, metrics *yametrics.MemStorage) http.Handler {
 	r := chi.NewRouter()
 	r.Use(middlewares.Logging(logger))
 
@@ -41,10 +41,10 @@ func InitRouter(logger zap.SugaredLogger, metrics *yametrics.MemStorage) http.Ha
 		r.Post("/update/{type}/{name}/{value}", h.createMetric)
 
 		// Обновление метрик v2
-		r.Post("/update/", h.createMetricV2)
+		r.Post("/update/", h.createMetricJSON)
 
 		// Получение метрик v2
-		r.Post("/value/", h.GetMetricV2)
+		r.Post("/value/", h.GetMetricJSON)
 	})
 
 	// Получение метрик v1

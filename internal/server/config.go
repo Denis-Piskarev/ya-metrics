@@ -55,7 +55,7 @@ func Run() {
 	}
 	defer logger.Sync()
 
-	suggared := *logger.Sugar()
+	suggared := logger.Sugar()
 
 	// Initiating config
 	cfg, err := NewConfig()
@@ -67,7 +67,7 @@ func Run() {
 
 	// Initiating router
 	metrics := yametrics.NewMemStorage(cfg.FileStoragePath)
-	router := handlers.InitRouter(suggared, metrics)
+	router := handlers.NewRouterWithMiddlewares(suggared, metrics)
 
 	go func() {
 		ctx, cancel := context.WithCancel(context.Background())
@@ -82,7 +82,7 @@ func Run() {
 		// If restore is true restore metrics from file
 		if cfg.Restore {
 			suggared.Info("Restore metrics from file")
-			if err := metrics.Restore(wd); err != nil {
+			if err := metrics.RestoreFromFile(wd); err != nil {
 				suggared.Errorw("Failed to restore metrics from file", "error", err)
 			}
 		}
@@ -102,7 +102,7 @@ func Run() {
 			select {
 			case <-ctx.Done():
 				logger.Info("Save metrics to file")
-				metrics.SaveToFile(wd)
+				metrics.SaveMetricsToFile(wd)
 				return
 			default:
 				// Saving metrics to file with interval
@@ -110,7 +110,7 @@ func Run() {
 				defer cancel()
 				<-wTO.Done()
 
-				if err := metrics.SaveToFile(wd); err != nil {
+				if err := metrics.SaveMetricsToFile(wd); err != nil {
 					suggared.Errorw("Failed to save metrics to file", "error", err)
 				}
 			}

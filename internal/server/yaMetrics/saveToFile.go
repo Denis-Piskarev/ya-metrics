@@ -8,14 +8,20 @@ import (
 	"github.com/DenisquaP/ya-metrics/pkg/models"
 )
 
-func (m *MemStorage) SaveToFile(wd string) error {
+func (m *MemStorage) SaveMetricsToFile(wd string) error {
 	file, err := os.OpenFile(filepath.Join(wd, m.FilePath), os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	defer func() error {
+		if err := file.Close(); err != nil {
+			return err
+		}
 
-	metrics, err := convertMetricsToJSON(m)
+		return nil
+	}()
+
+	metrics, err := toJSON(m)
 	if err != nil {
 		return err
 	}
@@ -28,7 +34,7 @@ func (m *MemStorage) SaveToFile(wd string) error {
 	return nil
 }
 
-func (m *MemStorage) Restore(wd string) error {
+func (m *MemStorage) RestoreFromFile(wd string) error {
 	metrics, err := os.ReadFile(filepath.Join(wd, m.FilePath))
 	if err != nil {
 		return err
@@ -53,7 +59,7 @@ func (m *MemStorage) Restore(wd string) error {
 	return nil
 }
 
-func convertMetricsToJSON(m *MemStorage) ([]byte, error) {
+func toJSON(m *MemStorage) ([]byte, error) {
 	metrics := make([]models.Metrics, 0, len(m.Gauge)+len(m.Counter))
 
 	for k, v := range m.Gauge {

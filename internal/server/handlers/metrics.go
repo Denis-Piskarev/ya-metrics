@@ -95,7 +95,7 @@ func (h *Handler) GetMetric(rw http.ResponseWriter, r *http.Request) {
 }
 
 // Create metric with json body
-func (h *Handler) createMetricV2(rw http.ResponseWriter, r *http.Request) {
+func (h *Handler) createMetricJSON(rw http.ResponseWriter, r *http.Request) {
 	var request models.Metrics
 
 	// Decoding json
@@ -152,7 +152,7 @@ func (h *Handler) createMetricV2(rw http.ResponseWriter, r *http.Request) {
 }
 
 // Get metric with json body
-func (h *Handler) GetMetricV2(rw http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetMetricJSON(rw http.ResponseWriter, r *http.Request) {
 	var request models.Metrics
 	var response models.Metrics
 

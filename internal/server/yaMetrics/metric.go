@@ -4,28 +4,6 @@ import (
 	"fmt"
 )
 
-type Metric interface {
-	MetricGetter
-	MetricWriter
-	MetricSaver
-}
-
-type MetricWriter interface {
-	WriteGouge(name string, val float64) error
-	WriteCounter(name string, val int64) error
-}
-
-type MetricGetter interface {
-	GetMetrics() string
-	GetGauge(name string) (float64, error)
-	GetCounter(name string) (int64, error)
-}
-
-type MetricSaver interface {
-	SaveToFile(wd string) error
-	Restore(wd string) error
-}
-
 // MemStorage struct
 type MemStorage struct {
 	Gauge    map[string]float64
@@ -71,7 +49,7 @@ func (m *MemStorage) GetMetrics() string {
 func (m *MemStorage) GetGauge(name string) (float64, error) {
 	g, ok := m.Gauge[name]
 	if !ok {
-		return 0, fmt.Errorf("variable does not exists")
+		return 0, fmt.Errorf("variable does not exist")
 	}
 
 	return g, nil
