@@ -3,10 +3,11 @@ package yametrics
 import (
 	"encoding/json"
 	"os"
+	"path/filepath"
 )
 
-func (m *MemStorage) SaveToFile() error {
-	file, err := os.OpenFile(m.FilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+func (m *MemStorage) SaveToFile(wd string) error {
+	file, err := os.OpenFile(filepath.Join(wd, m.FilePath), os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return err
 	}
@@ -22,6 +23,10 @@ func (m *MemStorage) SaveToFile() error {
 		return err
 	}
 
+	return nil
+}
+
+func (m *MemStorage) Restore() error {
 	return nil
 }
 

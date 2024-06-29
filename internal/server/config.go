@@ -2,9 +2,12 @@ package server
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/caarlos0/env/v11"
@@ -18,7 +21,7 @@ type config struct {
 	// Server address and port
 	RunAddr string `env:"ADDRESS" envDefault:"localhost:8080"`
 	// Interval between saving metrics to file
-	StoreInterval int `env:"STORE_INTERVAL" envDefault:"300"`
+	StoreInterval int `env:"STORE_INTERVAL" envDefault:"30"`
 	// Path to file with metrics
 	FileStoragePath string `env:"FILE_STORAGE_PATH" envDefault:"/tmp/metrics-db.json"`
 	// Restore metrics from file
@@ -69,12 +72,22 @@ func Run() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 
+		wd, err := os.Getwd()
+		if err != nil {
+			suggared.Fatalw("Failed to get working directory", "error", err)
+		}
+
+		ds, _ := filepath.Split(cfg.FileStoragePath)
+
+		if err := os.MkdirAll(filepath.Join(wd, ds), 0777); err != nil {
+			suggared.Fatalw("Failed to create working directory", "error", errors.Unwrap(err))
+		}
+
 		// ds, _ := os.Stat(cfg.FileStoragePath)
 		// if _, err := os.ReadDir(string(ds)); err != nil {
 
 		// }
 
-		// if cfg.Restore {
 		// 	suggared.Info("Restore metrics from file")
 		// 	if err := metrics.RestoreFromFile(); err != nil {
 		// 		suggared.Errorw("Failed to restore metrics from file", "error", err)
@@ -85,14 +98,14 @@ func Run() {
 			select {
 			case <-ctx.Done():
 				logger.Info("Save metrics to file")
-				metrics.SaveToFile()
+				metrics.SaveToFile(wd)
 				return
 			default:
 				wTO, cancel := context.WithTimeout(ctx, time.Duration(cfg.StoreInterval)*time.Second)
 				defer cancel()
 				<-wTO.Done()
 
-				if err := metrics.SaveToFile(); err != nil {
+				if err := metrics.SaveToFile(wd); err != nil {
 					suggared.Errorw("Failed to save metrics to file", "error", err)
 				}
 			}
