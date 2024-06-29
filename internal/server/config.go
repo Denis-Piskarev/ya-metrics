@@ -66,19 +66,34 @@ func Run() {
 	router := handlers.InitRouter(suggared, metrics)
 
 	go func() {
-		withTimeout, cancel := context.WithTimeout(context.Background(), time.Duration(cfg.StoreInterval)*time.Second)
+		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
+
+		// ds, _ := os.Stat(cfg.FileStoragePath)
+		// if _, err := os.ReadDir(string(ds)); err != nil {
+
+		// }
+
+		// if cfg.Restore {
+		// 	suggared.Info("Restore metrics from file")
+		// 	if err := metrics.RestoreFromFile(); err != nil {
+		// 		suggared.Errorw("Failed to restore metrics from file", "error", err)
+		// 	}
+		// }
+
 		for {
 			select {
-			case <-withTimeout.Done():
+			case <-ctx.Done():
 				logger.Info("Save metrics to file")
 				metrics.SaveToFile()
 				return
 			default:
-				for {
-					if err := metrics.SaveToFile(); err != nil {
-						suggared.Errorw("Failed to save metrics to file", "error", err)
-					}
+				wTO, cancel := context.WithTimeout(ctx, time.Duration(cfg.StoreInterval)*time.Second)
+				defer cancel()
+				<-wTO.Done()
+
+				if err := metrics.SaveToFile(); err != nil {
+					suggared.Errorw("Failed to save metrics to file", "error", err)
 				}
 			}
 		}

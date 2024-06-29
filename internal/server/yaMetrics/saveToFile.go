@@ -6,7 +6,7 @@ import (
 )
 
 func (m *MemStorage) SaveToFile() error {
-	file, err := os.OpenFile(m.FilePath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	file, err := os.OpenFile(m.FilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
 		return err
 	}
