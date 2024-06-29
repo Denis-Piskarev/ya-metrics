@@ -29,12 +29,6 @@ func (m *MemStorage) SaveToFile(wd string) error {
 }
 
 func (m *MemStorage) Restore(wd string) error {
-	file, err := os.OpenFile(filepath.Join(wd, m.FilePath), os.O_RDONLY, 0644)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
 	metrics, err := os.ReadFile(filepath.Join(wd, m.FilePath))
 	if err != nil {
 		return err

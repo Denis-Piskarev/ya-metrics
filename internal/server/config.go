@@ -21,7 +21,7 @@ type config struct {
 	// Server address and port
 	RunAddr string `env:"ADDRESS" envDefault:"localhost:8080"`
 	// Interval between saving metrics to file
-	StoreInterval int `env:"STORE_INTERVAL" envDefault:"30"`
+	StoreInterval int `env:"STORE_INTERVAL" envDefault:"300"`
 	// Path to file with metrics
 	FileStoragePath string `env:"FILE_STORAGE_PATH" envDefault:"/tmp/metrics-db.json"`
 	// Restore metrics from file
@@ -57,6 +57,7 @@ func Run() {
 
 	suggared := *logger.Sugar()
 
+	// Initiating config
 	cfg, err := NewConfig()
 	if err != nil {
 		suggared.Fatalw("Failed to parse config", "error", err)
@@ -64,31 +65,37 @@ func Run() {
 
 	suggared.Infow("Starting server", "address", cfg.RunAddr)
 
+	// Initiating router
 	metrics := yametrics.NewMemStorage(cfg.FileStoragePath)
-
 	router := handlers.InitRouter(suggared, metrics)
 
 	go func() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 
+		// Getting working directory
 		wd, err := os.Getwd()
 		if err != nil {
 			suggared.Fatalw("Failed to get working directory", "error", err)
 		}
 
-		ds, _ := filepath.Split(cfg.FileStoragePath)
-
-		if err := os.MkdirAll(filepath.Join(wd, ds), 0777); err != nil {
-			suggared.Fatalw("Failed to create working directory", "error", errors.Unwrap(err))
-		}
-
+		// If restore is true restore metrics from file
 		if cfg.Restore {
-
 			suggared.Info("Restore metrics from file")
 			if err := metrics.Restore(wd); err != nil {
 				suggared.Errorw("Failed to restore metrics from file", "error", err)
 			}
+		}
+
+		if cfg.FileStoragePath == "" {
+			return
+		}
+
+		// Getting path to folder with metrics
+		ds, _ := filepath.Split(cfg.FileStoragePath)
+		// Creating folder with metrics
+		if err := os.MkdirAll(filepath.Join(wd, ds), 0777); err != nil {
+			suggared.Fatalw("Failed to create working directory", "error", errors.Unwrap(err))
 		}
 
 		for {
@@ -98,6 +105,7 @@ func Run() {
 				metrics.SaveToFile(wd)
 				return
 			default:
+				// Saving metrics to file with interval
 				wTO, cancel := context.WithTimeout(ctx, time.Duration(cfg.StoreInterval)*time.Second)
 				defer cancel()
 				<-wTO.Done()
