@@ -11,7 +11,7 @@ import (
 	"github.com/DenisquaP/ya-metrics/internal/agent/memyandex"
 )
 
-type config struct {
+type Config struct {
 	RunAddr string `env:"ADDRESS" envDefault:"localhost:8080"`
 
 	// частота отправки метрик на сервер
@@ -21,8 +21,8 @@ type config struct {
 	PollInterval int `env:"POLL_INTERVAL" envDefault:"2"`
 }
 
-func NewConfig() (config, error) {
-	var cfg config
+func NewConfig() (Config, error) {
+	var cfg Config
 
 	// Setting values by flags, if env not empty, using env
 	flag.StringVar(&cfg.RunAddr, "a", "localhost:8080", "address and port to run server")
@@ -30,7 +30,7 @@ func NewConfig() (config, error) {
 	flag.IntVar(&cfg.PollInterval, "p", 2, "interval between polling calls")
 
 	if err := env.Parse(&cfg); err != nil {
-		return config{}, err
+		return Config{}, err
 	}
 
 	flag.Parse()

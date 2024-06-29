@@ -26,7 +26,7 @@ func InitRouter(logger zap.SugaredLogger, metrics *yametrics.MemStorage) http.Ha
 	r.Use(middlewares.Logging(logger))
 
 	// Middleware для сжатия
-	r.Use(middlewares.Commpression)
+	r.Use(middlewares.Compression)
 
 	h := NewHandler(metrics)
 

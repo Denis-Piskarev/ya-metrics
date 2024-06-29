@@ -5,10 +5,11 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	yametrics "github.com/DenisquaP/ya-metrics/internal/server/yaMetrics"
 	"github.com/go-resty/resty/v2"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
+
+	yametrics "github.com/DenisquaP/ya-metrics/internal/server/yaMetrics"
 )
 
 func TestCreateMetrics(t *testing.T) {

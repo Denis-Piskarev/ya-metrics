@@ -7,7 +7,7 @@ import (
 	"github.com/DenisquaP/ya-metrics/internal/server/compression"
 )
 
-func Commpression(next http.Handler) http.Handler {
+func Compression(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		rw := w
 

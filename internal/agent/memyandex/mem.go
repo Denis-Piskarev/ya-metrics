@@ -13,15 +13,17 @@ import (
 	"github.com/DenisquaP/ya-metrics/pkg/models"
 )
 
-const URL = "http://%s/update/"
+const MetricsUpdateURL = "http://%s/update/"
 
 type Counter int64
 type Gauge float64
 
 type Sender interface {
+	// Sending metrics to server
 	Send(addr, name string) error
 }
 
+// Send sends counter metrics to server
 func (c Counter) Send(addr, name string) error {
 	intC := int64(c)
 	req := models.Metrics{
@@ -50,8 +52,8 @@ func (c Counter) Send(addr, name string) error {
 	}
 
 	// Sending request with compressed data
-	client := http.Client{}
-	reqw, err := http.NewRequest("POST", fmt.Sprintf(URL, addr), &buf)
+	client := http.Client{Timeout: 20 * time.Second}
+	reqw, err := http.NewRequest("POST", fmt.Sprintf(MetricsUpdateURL, addr), &buf)
 	if err != nil {
 		return err
 	}
@@ -65,13 +67,14 @@ func (c Counter) Send(addr, name string) error {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("not expected status code: %d", resp.StatusCode)
 	}
 
 	return nil
 }
 
+// Send sends gauge metrics to server
 func (g Gauge) Send(addr, name string) error {
 	floatG := float64(g)
 	req := models.Metrics{
@@ -102,7 +105,7 @@ func (g Gauge) Send(addr, name string) error {
 	client := http.Client{}
 
 	// Sending request with compressed data
-	reqw, err := http.NewRequest("POST", fmt.Sprintf(URL, addr), &buf)
+	reqw, err := http.NewRequest("POST", fmt.Sprintf(MetricsUpdateURL, addr), &buf)
 	if err != nil {
 		return err
 	}
@@ -116,7 +119,7 @@ func (g Gauge) Send(addr, name string) error {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("not expected status code: %d", resp.StatusCode)
 	}
 
