@@ -83,16 +83,13 @@ func Run() {
 			suggared.Fatalw("Failed to create working directory", "error", errors.Unwrap(err))
 		}
 
-		// ds, _ := os.Stat(cfg.FileStoragePath)
-		// if _, err := os.ReadDir(string(ds)); err != nil {
+		if cfg.Restore {
 
-		// }
-
-		// 	suggared.Info("Restore metrics from file")
-		// 	if err := metrics.RestoreFromFile(); err != nil {
-		// 		suggared.Errorw("Failed to restore metrics from file", "error", err)
-		// 	}
-		// }
+			suggared.Info("Restore metrics from file")
+			if err := metrics.Restore(wd); err != nil {
+				suggared.Errorw("Failed to restore metrics from file", "error", err)
+			}
+		}
 
 		for {
 			select {

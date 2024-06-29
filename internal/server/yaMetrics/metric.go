@@ -22,8 +22,8 @@ type MetricGetter interface {
 }
 
 type MetricSaver interface {
-	SaveToFile(storagePath string) error
-	Restore(filepath string) error
+	SaveToFile(wd string) error
+	Restore(wd string) error
 }
 
 // MemStorage struct
