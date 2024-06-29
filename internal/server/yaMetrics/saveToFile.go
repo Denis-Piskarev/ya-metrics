@@ -15,7 +15,7 @@ func (m *MemStorage) SaveToFile(wd string) error {
 	}
 	defer file.Close()
 
-	metrics, err := convertMetricsToJson(m)
+	metrics, err := convertMetricsToJSON(m)
 	if err != nil {
 		return err
 	}
@@ -53,7 +53,7 @@ func (m *MemStorage) Restore(wd string) error {
 	return nil
 }
 
-func convertMetricsToJson(m *MemStorage) ([]byte, error) {
+func convertMetricsToJSON(m *MemStorage) ([]byte, error) {
 	metrics := make([]models.Metrics, 0, len(m.Gauge)+len(m.Counter))
 
 	for k, v := range m.Gauge {
@@ -72,6 +72,8 @@ func convertMetricsToJson(m *MemStorage) ([]byte, error) {
 		m.ID = k
 		m.MType = "counter"
 		m.Delta = &v
+
+		metrics = append(metrics, m)
 	}
 
 	return json.Marshal(metrics)
