@@ -57,7 +57,7 @@ func (h *Handler) GetMetric(rw http.ResponseWriter, r *http.Request) {
 	// Getting metric
 	metric, err := funcGet(h.Metrics, name)
 	if err != nil {
-		http.Error(rw, err.Error(), http.StatusBadRequest)
+		http.Error(rw, err.Error(), http.StatusNotFound)
 		return
 	}
 
