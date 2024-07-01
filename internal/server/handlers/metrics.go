@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"strconv"
 	"strings"
 
 	"github.com/go-chi/chi"
@@ -24,33 +23,17 @@ func (h *Handler) createMetric(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Writing metric
-	switch typeMetric {
-	case "counter":
-		val, err := strconv.ParseInt(valueMetric, 10, 64)
-		if err != nil {
-			http.Error(rw, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		if _, err := h.Metrics.WriteCounter(nameMetric, val); err != nil {
-			http.Error(rw, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-	case "gauge":
-		val, err := strconv.ParseFloat(valueMetric, 64)
-		if err != nil {
-			http.Error(rw, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		if _, err := h.Metrics.WriteGauge(nameMetric, val); err != nil {
-			http.Error(rw, err.Error(), http.StatusBadRequest)
-			return
-		}
-	default:
+	// Getting function from map for writing metric
+	funcWrite, ok := metricWrite[typeMetric]
+	if !ok {
 		http.Error(rw, "wrong type", http.StatusBadRequest)
+		return
+	}
+
+	// Writing metric into structure
+	err := funcWrite(h.Metrics, nameMetric, valueMetric)
+	if err != nil {
+		http.Error(rw, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -64,27 +47,21 @@ func (h *Handler) GetMetric(rw http.ResponseWriter, r *http.Request) {
 
 	var resp []byte
 
-	switch typeMet {
-	case "counter":
-		val, err := h.Metrics.GetCounter(name)
-		if err != nil {
-			http.Error(rw, err.Error(), http.StatusNotFound)
-			return
-		}
-
-		resp = []byte(strconv.FormatInt(val, 10))
-	case "gauge":
-		val, err := h.Metrics.GetGauge(name)
-		if err != nil {
-			http.Error(rw, err.Error(), http.StatusNotFound)
-			return
-		}
-
-		resp = []byte(strconv.FormatFloat(val, 'f', -1, 64))
-	default:
+	// Getting function from map for getting metric
+	funcGet, ok := metricGet[typeMet]
+	if !ok {
 		http.Error(rw, "wrong type", http.StatusBadRequest)
 		return
 	}
+
+	// Getting metric
+	metric, err := funcGet(h.Metrics, name)
+	if err != nil {
+		http.Error(rw, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	resp = []byte(metric)
 
 	rw.Header().Set("Content-Type", "text/plain")
 	rw.WriteHeader(http.StatusOK)
@@ -153,20 +130,19 @@ func (h *Handler) createMetricJSON(rw http.ResponseWriter, r *http.Request) {
 
 // Get metric with json body
 func (h *Handler) GetMetricJSON(rw http.ResponseWriter, r *http.Request) {
-	var request models.Metrics
-	var response models.Metrics
+	var metric models.Metrics
 
 	// Decoding json
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&metric); err != nil {
 		http.Error(rw, err.Error(), http.StatusBadRequest)
 		return
 	}
 	defer r.Body.Close()
 
 	// Writing metric
-	switch request.MType {
+	switch metric.MType {
 	case "counter":
-		c, err := h.Metrics.GetCounter(request.ID)
+		c, err := h.Metrics.GetCounter(metric.ID)
 		if err != nil {
 			log.Println(err.Error() + "[c]")
 			http.Error(rw, err.Error()+"not found counter", http.StatusNotFound)
@@ -174,11 +150,9 @@ func (h *Handler) GetMetricJSON(rw http.ResponseWriter, r *http.Request) {
 		}
 
 		// Writing response struct
-		response.ID = request.ID
-		response.MType = request.MType
-		response.Delta = &c
+		metric.Delta = &c
 	case "gauge":
-		g, err := h.Metrics.GetGauge(request.ID)
+		g, err := h.Metrics.GetGauge(metric.ID)
 		if err != nil {
 			log.Println(err.Error() + "[g]")
 			http.Error(rw, err.Error()+"not found gauge", http.StatusNotFound)
@@ -186,16 +160,14 @@ func (h *Handler) GetMetricJSON(rw http.ResponseWriter, r *http.Request) {
 		}
 
 		// Writing response struct
-		response.ID = request.ID
-		response.MType = request.MType
-		response.Value = &g
+		metric.Value = &g
 	default:
 		http.Error(rw, "wrong type", http.StatusBadRequest)
 		return
 	}
 
 	// Encoding json
-	res, err := json.Marshal(response)
+	res, err := json.Marshal(metric)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusInternalServerError)
 		return

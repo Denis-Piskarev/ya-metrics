@@ -22,10 +22,14 @@ func Logging(logger *zap.SugaredLogger) func(http.Handler) http.Handler {
 			next.ServeHTTP(&lw, r)
 
 			// request logging
-			logger.Infow("request", "method", r.Method, "url", r.URL, "time", time.Since(ts))
-
-			// response logging
-			logger.Infow("response", "status", lw.responseData.status, "size", lw.responseData.size)
+			logger.Infow(
+				"request and response",
+				"method", r.Method,
+				"url", r.URL,
+				"time", time.Since(ts),
+				"status", lw.responseData.status,
+				"size", lw.responseData.size,
+			)
 		})
 	}
 }
