@@ -7,14 +7,14 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type Db struct {
+type DB struct {
 	Db *pgxpool.Pool
 }
 
-func NewDB(ctx context.Context, address string) (db Db, err error) {
+func NewDB(ctx context.Context, address string) (db *DB, err error) {
 	cfg, err := pgxpool.ParseConfig(address)
 	if err != nil {
-		return Db{}, err
+		return nil, err
 	}
 
 	cfg.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
@@ -29,10 +29,10 @@ func NewDB(ctx context.Context, address string) (db Db, err error) {
 
 	conn, err := pgxpool.NewWithConfig(ctx, cfg)
 	if err != nil {
-		return Db{}, err
+		return nil, err
 	}
 
-	return Db{
+	return &DB{
 		Db: conn,
 	}, nil
 }

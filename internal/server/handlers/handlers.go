@@ -16,10 +16,10 @@ import (
 type Handler struct {
 	Metrics yametrics.Metric
 	Logger  *zap.SugaredLogger
-	DB      db.DbInterface
+	DB      db.DBInterface
 }
 
-func NewHandler(metrics yametrics.Metric, logger *zap.SugaredLogger, db db.DbInterface) *Handler {
+func NewHandler(metrics yametrics.Metric, logger *zap.SugaredLogger, db db.DBInterface) *Handler {
 	return &Handler{
 		Metrics: metrics,
 		Logger:  logger,
@@ -27,7 +27,7 @@ func NewHandler(metrics yametrics.Metric, logger *zap.SugaredLogger, db db.DbInt
 	}
 }
 
-func NewRouterWithMiddlewares(ctx context.Context, logger *zap.SugaredLogger, metrics yametrics.Metric, db db.DbInterface) http.Handler {
+func NewRouterWithMiddlewares(ctx context.Context, logger *zap.SugaredLogger, metrics yametrics.Metric, db db.DBInterface) http.Handler {
 	select {
 	case <-ctx.Done():
 		logger.Errorw("context canceled", "error", ctx.Err())
