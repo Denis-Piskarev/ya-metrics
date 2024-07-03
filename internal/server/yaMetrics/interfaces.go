@@ -9,8 +9,8 @@ type Metric interface {
 
 // Iterface for writing metrics
 type MetricWriter interface {
-	WriteGauge(name string, val float64) error
-	WriteCounter(name string, val int64) error
+	WriteGauge(name string, val float64) (float64, error)
+	WriteCounter(name string, val int64) (int64, error)
 }
 
 // Interface for getting metrics

@@ -8,8 +8,8 @@ import (
 )
 
 // Mapping metric write
-var metricWrite map[string]func(metric *yametrics.MemStorage, name, value string) error = map[string]func(metric *yametrics.MemStorage, name, value string) error{
-	"counter": func(metric *yametrics.MemStorage, name, value string) error {
+var metricWrite map[string]func(metric yametrics.Metric, name, value string) error = map[string]func(metric yametrics.Metric, name, value string) error{
+	"counter": func(metric yametrics.Metric, name, value string) error {
 		val, err := strconv.ParseInt(value, 10, 64)
 		if err != nil {
 			return err
@@ -22,7 +22,7 @@ var metricWrite map[string]func(metric *yametrics.MemStorage, name, value string
 
 		return nil
 	},
-	"gauge": func(metric *yametrics.MemStorage, name, value string) error {
+	"gauge": func(metric yametrics.Metric, name, value string) error {
 		val, err := strconv.ParseFloat(value, 64)
 		if err != nil {
 			return err
@@ -38,8 +38,8 @@ var metricWrite map[string]func(metric *yametrics.MemStorage, name, value string
 }
 
 // Mapping metric get
-var metricGet map[string]func(metric *yametrics.MemStorage, name string) (string, error) = map[string]func(metric *yametrics.MemStorage, name string) (string, error){
-	"counter": func(metric *yametrics.MemStorage, name string) (string, error) {
+var metricGet map[string]func(metric yametrics.Metric, name string) (string, error) = map[string]func(metric yametrics.Metric, name string) (string, error){
+	"counter": func(metric yametrics.Metric, name string) (string, error) {
 		val, err := metric.GetCounter(name)
 		if err != nil {
 			return "", err
@@ -47,7 +47,7 @@ var metricGet map[string]func(metric *yametrics.MemStorage, name string) (string
 
 		return fmt.Sprintf("%v", val), nil
 	},
-	"gauge": func(metric *yametrics.MemStorage, name string) (string, error) {
+	"gauge": func(metric yametrics.Metric, name string) (string, error) {
 		val, err := metric.GetGauge(name)
 		if err != nil {
 			return "", err
