@@ -44,7 +44,7 @@ func Run() {
 	if err != nil {
 		sugared.Fatalw("Failed to create new DB", "error", err)
 	}
-	defer db.Db.Close()
+	defer db.DB.Close()
 
 	router := handlers.NewRouterWithMiddlewares(ctx, sugared, metrics, db)
 

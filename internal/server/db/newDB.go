@@ -8,7 +8,7 @@ import (
 )
 
 type DB struct {
-	Db *pgxpool.Pool
+	DB *pgxpool.Pool
 }
 
 func NewDB(ctx context.Context, address string) (db *DB, err error) {
@@ -33,6 +33,6 @@ func NewDB(ctx context.Context, address string) (db *DB, err error) {
 	}
 
 	return &DB{
-		Db: conn,
+		DB: conn,
 	}, nil
 }
