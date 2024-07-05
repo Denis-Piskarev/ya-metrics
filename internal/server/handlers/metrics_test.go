@@ -25,7 +25,7 @@ func TestCreateMetrics(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	db := mocks.NewMockDbInterface(ctrl)
+	db := mocks.NewMockDBInterface(ctrl)
 
 	suggared := logger.Sugar()
 

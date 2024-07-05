@@ -2,37 +2,23 @@ package db
 
 import (
 	"context"
-
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
+	"go.uber.org/zap"
 )
 
 type DB struct {
-	DB *pgxpool.Pool
+	DB     *pgx.Conn
+	Logger *zap.SugaredLogger
 }
 
-func NewDB(ctx context.Context, address string) (db *DB, err error) {
-	cfg, err := pgxpool.ParseConfig(address)
-	if err != nil {
-		return nil, err
-	}
-
-	cfg.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
-		if err := conn.Ping(ctx); err != nil {
-			return err
-		}
-
-		return nil
-	}
-
-	cfg.MaxConns = 1
-
-	conn, err := pgxpool.NewWithConfig(ctx, cfg)
+func NewDB(ctx context.Context, logger *zap.SugaredLogger, address string) (db *DB, err error) {
+	conn, err := pgx.Connect(ctx, address)
 	if err != nil {
 		return nil, err
 	}
 
 	return &DB{
-		DB: conn,
+		Logger: logger,
+		DB:     conn,
 	}, nil
 }

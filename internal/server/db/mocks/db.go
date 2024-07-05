@@ -11,31 +11,76 @@ import (
 	gomock "github.com/golang/mock/gomock"
 )
 
-// MockDbInterface is a mock of DbInterface interface.
-type MockDbInterface struct {
+// MockDBInterface is a mock of DBInterface interface.
+type MockDBInterface struct {
 	ctrl     *gomock.Controller
-	recorder *MockDbInterfaceMockRecorder
+	recorder *MockDBInterfaceMockRecorder
 }
 
-// MockDbInterfaceMockRecorder is the mock recorder for MockDbInterface.
-type MockDbInterfaceMockRecorder struct {
-	mock *MockDbInterface
+// MockDBInterfaceMockRecorder is the mock recorder for MockDBInterface.
+type MockDBInterfaceMockRecorder struct {
+	mock *MockDBInterface
 }
 
-// NewMockDbInterface creates a new mock instance.
-func NewMockDbInterface(ctrl *gomock.Controller) *MockDbInterface {
-	mock := &MockDbInterface{ctrl: ctrl}
-	mock.recorder = &MockDbInterfaceMockRecorder{mock}
+// NewMockDBInterface creates a new mock instance.
+func NewMockDBInterface(ctrl *gomock.Controller) *MockDBInterface {
+	mock := &MockDBInterface{ctrl: ctrl}
+	mock.recorder = &MockDBInterfaceMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockDbInterface) EXPECT() *MockDbInterfaceMockRecorder {
+func (m *MockDBInterface) EXPECT() *MockDBInterfaceMockRecorder {
 	return m.recorder
 }
 
+// GetCounter mocks base method.
+func (m *MockDBInterface) GetCounter(arg0 context.Context, arg1 string) (int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCounter", arg0, arg1)
+	ret0, _ := ret[0].(int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCounter indicates an expected call of GetCounter.
+func (mr *MockDBInterfaceMockRecorder) GetCounter(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCounter", reflect.TypeOf((*MockDBInterface)(nil).GetCounter), arg0, arg1)
+}
+
+// GetGauge mocks base method.
+func (m *MockDBInterface) GetGauge(arg0 context.Context, arg1 string) (float64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetGauge", arg0, arg1)
+	ret0, _ := ret[0].(float64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetGauge indicates an expected call of GetGauge.
+func (mr *MockDBInterfaceMockRecorder) GetGauge(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGauge", reflect.TypeOf((*MockDBInterface)(nil).GetGauge), arg0, arg1)
+}
+
+// GetMetrics mocks base method.
+func (m *MockDBInterface) GetMetrics(arg0 context.Context) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetMetrics", arg0)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetMetrics indicates an expected call of GetMetrics.
+func (mr *MockDBInterfaceMockRecorder) GetMetrics(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMetrics", reflect.TypeOf((*MockDBInterface)(nil).GetMetrics), arg0)
+}
+
 // Ping mocks base method.
-func (m *MockDbInterface) Ping(arg0 context.Context) error {
+func (m *MockDBInterface) Ping(arg0 context.Context) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Ping", arg0)
 	ret0, _ := ret[0].(error)
@@ -43,7 +88,158 @@ func (m *MockDbInterface) Ping(arg0 context.Context) error {
 }
 
 // Ping indicates an expected call of Ping.
-func (mr *MockDbInterfaceMockRecorder) Ping(arg0 interface{}) *gomock.Call {
+func (mr *MockDBInterfaceMockRecorder) Ping(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Ping", reflect.TypeOf((*MockDbInterface)(nil).Ping), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Ping", reflect.TypeOf((*MockDBInterface)(nil).Ping), arg0)
+}
+
+// WriteCounter mocks base method.
+func (m *MockDBInterface) WriteCounter(arg0 context.Context, arg1 string, arg2 int64) (int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "WriteCounter", arg0, arg1, arg2)
+	ret0, _ := ret[0].(int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// WriteCounter indicates an expected call of WriteCounter.
+func (mr *MockDBInterfaceMockRecorder) WriteCounter(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WriteCounter", reflect.TypeOf((*MockDBInterface)(nil).WriteCounter), arg0, arg1, arg2)
+}
+
+// WriteGauge mocks base method.
+func (m *MockDBInterface) WriteGauge(arg0 context.Context, arg1 string, arg2 float64) (float64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "WriteGauge", arg0, arg1, arg2)
+	ret0, _ := ret[0].(float64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// WriteGauge indicates an expected call of WriteGauge.
+func (mr *MockDBInterfaceMockRecorder) WriteGauge(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WriteGauge", reflect.TypeOf((*MockDBInterface)(nil).WriteGauge), arg0, arg1, arg2)
+}
+
+// MockWriter is a mock of Writer interface.
+type MockWriter struct {
+	ctrl     *gomock.Controller
+	recorder *MockWriterMockRecorder
+}
+
+// MockWriterMockRecorder is the mock recorder for MockWriter.
+type MockWriterMockRecorder struct {
+	mock *MockWriter
+}
+
+// NewMockWriter creates a new mock instance.
+func NewMockWriter(ctrl *gomock.Controller) *MockWriter {
+	mock := &MockWriter{ctrl: ctrl}
+	mock.recorder = &MockWriterMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockWriter) EXPECT() *MockWriterMockRecorder {
+	return m.recorder
+}
+
+// WriteCounter mocks base method.
+func (m *MockWriter) WriteCounter(arg0 context.Context, arg1 string, arg2 int64) (int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "WriteCounter", arg0, arg1, arg2)
+	ret0, _ := ret[0].(int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// WriteCounter indicates an expected call of WriteCounter.
+func (mr *MockWriterMockRecorder) WriteCounter(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WriteCounter", reflect.TypeOf((*MockWriter)(nil).WriteCounter), arg0, arg1, arg2)
+}
+
+// WriteGauge mocks base method.
+func (m *MockWriter) WriteGauge(arg0 context.Context, arg1 string, arg2 float64) (float64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "WriteGauge", arg0, arg1, arg2)
+	ret0, _ := ret[0].(float64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// WriteGauge indicates an expected call of WriteGauge.
+func (mr *MockWriterMockRecorder) WriteGauge(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WriteGauge", reflect.TypeOf((*MockWriter)(nil).WriteGauge), arg0, arg1, arg2)
+}
+
+// MockReader is a mock of Reader interface.
+type MockReader struct {
+	ctrl     *gomock.Controller
+	recorder *MockReaderMockRecorder
+}
+
+// MockReaderMockRecorder is the mock recorder for MockReader.
+type MockReaderMockRecorder struct {
+	mock *MockReader
+}
+
+// NewMockReader creates a new mock instance.
+func NewMockReader(ctrl *gomock.Controller) *MockReader {
+	mock := &MockReader{ctrl: ctrl}
+	mock.recorder = &MockReaderMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockReader) EXPECT() *MockReaderMockRecorder {
+	return m.recorder
+}
+
+// GetCounter mocks base method.
+func (m *MockReader) GetCounter(arg0 context.Context, arg1 string) (int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCounter", arg0, arg1)
+	ret0, _ := ret[0].(int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCounter indicates an expected call of GetCounter.
+func (mr *MockReaderMockRecorder) GetCounter(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCounter", reflect.TypeOf((*MockReader)(nil).GetCounter), arg0, arg1)
+}
+
+// GetGauge mocks base method.
+func (m *MockReader) GetGauge(arg0 context.Context, arg1 string) (float64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetGauge", arg0, arg1)
+	ret0, _ := ret[0].(float64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetGauge indicates an expected call of GetGauge.
+func (mr *MockReaderMockRecorder) GetGauge(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGauge", reflect.TypeOf((*MockReader)(nil).GetGauge), arg0, arg1)
+}
+
+// GetMetrics mocks base method.
+func (m *MockReader) GetMetrics(arg0 context.Context) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetMetrics", arg0)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetMetrics indicates an expected call of GetMetrics.
+func (mr *MockReaderMockRecorder) GetMetrics(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMetrics", reflect.TypeOf((*MockReader)(nil).GetMetrics), arg0)
 }

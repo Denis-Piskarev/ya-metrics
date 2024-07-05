@@ -1,6 +1,7 @@
 package yametrics
 
 import (
+	"context"
 	"fmt"
 )
 
@@ -20,19 +21,19 @@ func NewMemStorage(filepath string) *MemStorage {
 }
 
 // Запись метрики типа Gauge
-func (m *MemStorage) WriteGauge(name string, val float64) (float64, error) {
+func (m *MemStorage) WriteGauge(ctx context.Context, name string, val float64) (float64, error) {
 	m.Gauge[name] = val
 	return m.Gauge[name], nil
 }
 
 // Запись метрики типа Counter
-func (m *MemStorage) WriteCounter(name string, val int64) (int64, error) {
+func (m *MemStorage) WriteCounter(ctx context.Context, name string, val int64) (int64, error) {
 	m.Counter[name] += val
 	return m.Counter[name], nil
 }
 
 // Получение всех метрик
-func (m *MemStorage) GetMetrics() string {
+func (m *MemStorage) GetMetrics(ctx context.Context) (string, error) {
 	res := ""
 
 	for k, v := range m.Gauge {
@@ -42,11 +43,11 @@ func (m *MemStorage) GetMetrics() string {
 		res += fmt.Sprintf("%v: %v\n", k, v)
 	}
 
-	return res
+	return res, nil
 }
 
 // Получение метрики типа Gauge
-func (m *MemStorage) GetGauge(name string) (float64, error) {
+func (m *MemStorage) GetGauge(ctx context.Context, name string) (float64, error) {
 	g, ok := m.Gauge[name]
 	if !ok {
 		return 0, fmt.Errorf("variable does not exist")
@@ -56,7 +57,7 @@ func (m *MemStorage) GetGauge(name string) (float64, error) {
 }
 
 // Получение метрики типа Counter
-func (m *MemStorage) GetCounter(name string) (int64, error) {
+func (m *MemStorage) GetCounter(ctx context.Context, name string) (int64, error) {
 	c, ok := m.Counter[name]
 	if !ok {
 		return 0, fmt.Errorf("variable does not exists")

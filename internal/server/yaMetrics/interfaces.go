@@ -1,5 +1,7 @@
 package yametrics
 
+import "context"
+
 // Metrics interface
 type Metric interface {
 	MetricGetter
@@ -9,15 +11,15 @@ type Metric interface {
 
 // Iterface for writing metrics
 type MetricWriter interface {
-	WriteGauge(name string, val float64) (float64, error)
-	WriteCounter(name string, val int64) (int64, error)
+	WriteGauge(ctx context.Context, name string, val float64) (float64, error)
+	WriteCounter(ctx context.Context, name string, val int64) (int64, error)
 }
 
 // Interface for getting metrics
 type MetricGetter interface {
-	GetMetrics() string
-	GetGauge(name string) (float64, error)
-	GetCounter(name string) (int64, error)
+	GetMetrics(ctx context.Context) (string, error)
+	GetGauge(ctx context.Context, name string) (float64, error)
+	GetCounter(ctx context.Context, name string) (int64, error)
 }
 
 // Interface for saving metrics
