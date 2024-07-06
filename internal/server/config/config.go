@@ -39,8 +39,9 @@ func NewConfig() (Config, error) {
 
 	flag.Parse()
 
+	// if DatabaseDsn not empty, using it
 	addr := strings.Split(cfg.DatabaseDsn, " ")
-	if len(addr) > 0 {
+	if len(addr) > 1 {
 		var user string
 		var pass string
 		var host string
