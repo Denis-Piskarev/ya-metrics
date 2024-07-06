@@ -40,32 +40,33 @@ func NewConfig() (Config, error) {
 	flag.Parse()
 
 	addr := strings.Split(cfg.DatabaseDsn, " ")
+	if len(addr) > 0 {
+		var user string
+		var pass string
+		var host string
+		var port string
+		var dbname string
 
-	var user string
-	var pass string
-	var host string
-	var port string
-	var dbname string
+		for _, i := range addr {
+			i = strings.Trim(i, `"`)
+			variables := strings.Split(i, "=")
+			switch variables[0] {
+			case "user":
+				user = variables[1]
+			case "password":
+				pass = variables[1]
+			case "host":
+				host = variables[1]
+			case "port":
+				port = variables[1]
+			case "dbname":
+				dbname = variables[1]
+			}
 
-	for _, i := range addr {
-		i = strings.Trim(i, `"`)
-		variables := strings.Split(i, "=")
-		switch variables[0] {
-		case "user":
-			user = variables[1]
-		case "password":
-			pass = variables[1]
-		case "host":
-			host = variables[1]
-		case "port":
-			port = variables[1]
-		case "dbname":
-			dbname = variables[1]
 		}
 
+		cfg.DatabaseDsn = fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", user, pass, host, port, dbname)
 	}
-
-	cfg.DatabaseDsn = fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", user, pass, host, port, dbname)
 
 	return cfg, nil
 }
