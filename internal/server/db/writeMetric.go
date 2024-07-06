@@ -2,7 +2,6 @@ package db
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"strings"
 
@@ -12,7 +11,7 @@ import (
 // WriteGaoge writes gauge metric into db
 func (d *DB) WriteGauge(ctx context.Context, name string, value float64) (float64, error) {
 	name = strings.ToLower(name)
-	var newVal sql.NullFloat64
+	var oldVal float64
 
 	tx, err := d.DB.BeginTx(ctx, pgx.TxOptions{})
 	defer func() {
@@ -24,7 +23,7 @@ func (d *DB) WriteGauge(ctx context.Context, name string, value float64) (float6
 	}()
 
 	// Check if metric exists
-	if err := tx.QueryRow(ctx, `SELECT value FROM metrics WHERE name=$1 AND type = 'gauge'`, name).Scan(newVal); err != nil {
+	if err := tx.QueryRow(ctx, `SELECT gauge FROM metrics WHERE name=$1 AND type = 'gauge'`, name).Scan(&oldVal); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			// Insert new metric if not exists
 			if _, err := tx.Exec(ctx, `INSERT INTO metrics (name, type, gauge) VALUES ($1, 'gauge', $2)`, name, value); err != nil {
@@ -60,21 +59,23 @@ func (d *DB) WriteCounter(ctx context.Context, name string, value int64) (int64,
 		}
 	}()
 
-	var oldVal sql.NullInt64
+	// Check if metric exists
+	var oldVal int64
 	if err := tx.QueryRow(ctx, "SELECT counter FROM metrics WHERE name = $1 AND type = 'counter'", name).Scan(&oldVal); err != nil {
+		// Insert new metric if not exists
+		if errors.Is(err, pgx.ErrNoRows) {
+			if _, err := tx.Exec(ctx, `INSERT INTO metrics (name, type, counter) VALUES ($1, 'counter', $2)`, name, value); err != nil {
+				d.Logger.Errorw("write counter error", "error", err)
+				return 0, err
+			}
+
+			return value, nil
+		}
 		return 0, err
 	}
 
-	if !oldVal.Valid {
-		if _, err := tx.Exec(ctx, `INSERT INTO metrics (name, type, counter) VALUES ($1, 'counter', $2)`, name, value); err != nil {
-			d.Logger.Errorw("write counter error", "error", err)
-			return 0, err
-		}
-
-		return value, nil
-	}
-
-	value += oldVal.Int64
+	// Update metric if exists
+	value += oldVal
 	if _, err := tx.Exec(ctx, `UPDATE metrics SET counter = $1 WHERE type = 'counter' AND name = $2`, value, name); err != nil {
 		d.Logger.Errorw("write counter error", "error", err)
 		return 0, err
