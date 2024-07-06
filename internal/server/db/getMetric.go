@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"strings"
 )
 
 // GetMetrics get all metrics from DB
@@ -45,8 +44,6 @@ func (d *DB) GetMetrics(ctx context.Context) (string, error) {
 
 // GetCounter gets counter metric from DB by name
 func (d *DB) GetCounter(ctx context.Context, name string) (int64, error) {
-	name = strings.ToLower(name)
-
 	var counter sql.NullInt64
 
 	if err := d.DB.QueryRow(ctx, "SELECT counter FROM metrics WHERE name = $1 AND type = 'counter'", name).Scan(&counter); err != nil {
@@ -62,8 +59,6 @@ func (d *DB) GetCounter(ctx context.Context, name string) (int64, error) {
 
 // GetGauge gets gauge metric from DB by name
 func (d *DB) GetGauge(ctx context.Context, name string) (float64, error) {
-	name = strings.ToLower(name)
-
 	var gauge sql.NullFloat64
 
 	if err := d.DB.QueryRow(ctx, "SELECT gauge FROM metrics WHERE name = $1 AND type = 'gauge'", name).Scan(&gauge); err != nil {

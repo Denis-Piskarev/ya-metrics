@@ -3,14 +3,12 @@ package db
 import (
 	"context"
 	"errors"
-	"strings"
 
 	"github.com/jackc/pgx/v5"
 )
 
 // WriteGaoge writes gauge metric into db
 func (d *DB) WriteGauge(ctx context.Context, name string, value float64) (float64, error) {
-	name = strings.ToLower(name)
 	var oldVal float64
 
 	tx, err := d.DB.BeginTx(ctx, pgx.TxOptions{})
@@ -48,8 +46,6 @@ func (d *DB) WriteGauge(ctx context.Context, name string, value float64) (float6
 
 // WriteCounter writes counter metric into db
 func (d *DB) WriteCounter(ctx context.Context, name string, value int64) (int64, error) {
-	name = strings.ToLower(name)
-
 	tx, err := d.DB.BeginTx(ctx, pgx.TxOptions{})
 	defer func() {
 		if err != nil {
