@@ -44,10 +44,27 @@ func (d *DB) WriteMetrics(ctx context.Context, metrics []*models.Metrics) error 
 
 			// Add old value
 			*metric.Delta += oldCounter
-		}
-		if _, err := tx.Exec(ctx, query, metric.MType, metric.ID, metric.Delta, metric.Value); err != nil {
-			d.Logger.Errorw("write metrics error", "error", err)
-			return err
+
+			// Write new value
+			if _, err := tx.Exec(ctx, `UPDATE metrics SET counter = $1 WHERE type = 'counter' AND name = $2`, metric.Delta, metric.ID); err != nil {
+				d.Logger.Errorw("write counter error", "error", err)
+				return err
+			}
+		} else if metric.MType == "gauge" {
+			// Updating gauge
+			ra, err := tx.Exec(ctx, `UPDATE metrics SET gauge = $1 WHERE type = 'gauge' AND name = $2`, metric.Value, metric.ID)
+			if err != nil {
+				d.Logger.Errorw("write gauge error", "error", err)
+				return err
+			}
+
+			// If no rows updated we insert new value
+			if ra.RowsAffected() == 0 {
+				if _, err := tx.Exec(ctx, query, metric.MType, metric.ID, metric.Delta, metric.Value); err != nil {
+					d.Logger.Errorw("write new gauge error", "error", err)
+					return err
+				}
+			}
 		}
 	}
 
