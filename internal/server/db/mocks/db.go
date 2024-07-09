@@ -8,6 +8,7 @@ import (
 	context "context"
 	reflect "reflect"
 
+	models "github.com/DenisquaP/ya-metrics/pkg/models"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -123,6 +124,20 @@ func (mr *MockDBInterfaceMockRecorder) WriteGauge(arg0, arg1, arg2 interface{}) 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WriteGauge", reflect.TypeOf((*MockDBInterface)(nil).WriteGauge), arg0, arg1, arg2)
 }
 
+// WriteMetrics mocks base method.
+func (m *MockDBInterface) WriteMetrics(arg0 context.Context, arg1 []*models.Metrics) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "WriteMetrics", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// WriteMetrics indicates an expected call of WriteMetrics.
+func (mr *MockDBInterfaceMockRecorder) WriteMetrics(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WriteMetrics", reflect.TypeOf((*MockDBInterface)(nil).WriteMetrics), arg0, arg1)
+}
+
 // MockWriter is a mock of Writer interface.
 type MockWriter struct {
 	ctrl     *gomock.Controller
@@ -174,6 +189,20 @@ func (m *MockWriter) WriteGauge(arg0 context.Context, arg1 string, arg2 float64)
 func (mr *MockWriterMockRecorder) WriteGauge(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WriteGauge", reflect.TypeOf((*MockWriter)(nil).WriteGauge), arg0, arg1, arg2)
+}
+
+// WriteMetrics mocks base method.
+func (m *MockWriter) WriteMetrics(arg0 context.Context, arg1 []*models.Metrics) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "WriteMetrics", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// WriteMetrics indicates an expected call of WriteMetrics.
+func (mr *MockWriterMockRecorder) WriteMetrics(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WriteMetrics", reflect.TypeOf((*MockWriter)(nil).WriteMetrics), arg0, arg1)
 }
 
 // MockReader is a mock of Reader interface.

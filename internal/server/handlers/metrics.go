@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"strings"
 
@@ -198,6 +199,32 @@ func (h *Handler) GetMetrics(rw http.ResponseWriter, r *http.Request) {
 	rw.Header().Set("Content-Type", "text/html")
 	rw.WriteHeader(http.StatusOK)
 	rw.Write([]byte(metHTML))
+}
+
+func (h *Handler) UpdateMultiple(rw http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	// Decoding json
+	var request []*models.Metrics
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		log.Println(err)
+		rw.Write([]byte(err.Error()))
+		http.Error(rw, err.Error(), http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	// Writing metrics
+	err := h.Metrics.WriteMetrics(ctx, request)
+	if err != nil {
+		log.Println(err)
+		rw.Write([]byte(err.Error()))
+		http.Error(rw, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	rw.WriteHeader(http.StatusOK)
+	rw.Write([]byte(`{"status": "ok"}`))
 }
 
 var HTMLMet = `<!DOCTYPE html>

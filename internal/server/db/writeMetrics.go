@@ -3,8 +3,9 @@ package db
 import (
 	"context"
 
-	"github.com/DenisquaP/ya-metrics/pkg/models"
 	"github.com/jackc/pgx/v5"
+
+	"github.com/DenisquaP/ya-metrics/pkg/models"
 )
 
 func (d *DB) WriteMetrics(ctx context.Context, metrics []*models.Metrics) error {
