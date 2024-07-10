@@ -8,26 +8,23 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"go.uber.org/zap"
 
-	"github.com/DenisquaP/ya-metrics/internal/server/db"
 	"github.com/DenisquaP/ya-metrics/internal/server/middlewares"
-	yametrics "github.com/DenisquaP/ya-metrics/internal/server/yaMetrics"
+	"github.com/DenisquaP/ya-metrics/internal/server/usecase"
 )
 
 type Handler struct {
-	Metrics yametrics.Metric
+	Metrics usecase.MetricInterface
 	Logger  *zap.SugaredLogger
-	DB      db.DBInterface
 }
 
-func NewHandler(metrics yametrics.Metric, logger *zap.SugaredLogger, db db.DBInterface) *Handler {
+func NewHandler(metrics usecase.MetricInterface, logger *zap.SugaredLogger) *Handler {
 	return &Handler{
 		Metrics: metrics,
 		Logger:  logger,
-		DB:      db,
 	}
 }
 
-func NewRouterWithMiddlewares(ctx context.Context, logger *zap.SugaredLogger, metrics yametrics.Metric, db db.DBInterface) http.Handler {
+func NewRouterWithMiddlewares(ctx context.Context, logger *zap.SugaredLogger, metrics usecase.MetricInterface) http.Handler {
 	select {
 	case <-ctx.Done():
 		logger.Errorw("context canceled", "error", ctx.Err())
@@ -42,7 +39,7 @@ func NewRouterWithMiddlewares(ctx context.Context, logger *zap.SugaredLogger, me
 	// Middleware for comporession
 	r.Use(middlewares.Compression)
 
-	h := NewHandler(metrics, logger, db)
+	h := NewHandler(metrics, logger)
 
 	// To get all metrics in HTML
 	r.Get("/", h.GetMetrics)

@@ -61,10 +61,10 @@ func Run() {
 			sugared.Fatalw("Failed to run migrations", "error", err)
 		}
 
-		router = handlers.NewRouterWithMiddlewares(ctx, sugared, database, database)
+		router = handlers.NewRouterWithMiddlewares(ctx, sugared, database)
 
 	} else {
-		router = handlers.NewRouterWithMiddlewares(ctx, sugared, metrics, nil)
+		router = handlers.NewRouterWithMiddlewares(ctx, sugared, metrics)
 
 		go writeFile(ctx, sugared, metrics, cfg)
 	}

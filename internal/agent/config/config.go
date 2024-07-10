@@ -1,14 +1,9 @@
 package config
 
 import (
-	"context"
 	"flag"
-	"log"
-	"runtime"
 
 	"github.com/caarlos0/env/v11"
-
-	"github.com/DenisquaP/ya-metrics/internal/agent/memyandex"
 )
 
 type Config struct {
@@ -35,23 +30,4 @@ func NewConfig() (Config, error) {
 
 	flag.Parse()
 	return cfg, nil
-}
-
-func Run() {
-	cfg, err := NewConfig()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Creating struct for collecting metrics
-	mem := memyandex.MemStatsYaSt{RuntimeMem: &runtime.MemStats{}}
-
-	ctx := context.Background()
-
-	for {
-		mem.UpdateMetrics(ctx, cfg.PollInterval)
-		if err := mem.SendToServer(ctx, cfg.RunAddr, cfg.ReportInterval); err != nil {
-			log.Printf("error send metrics: %s", err)
-		}
-	}
 }

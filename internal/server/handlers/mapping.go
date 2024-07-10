@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"strconv"
 
-	yametrics "github.com/DenisquaP/ya-metrics/internal/server/yaMetrics"
+	"github.com/DenisquaP/ya-metrics/internal/server/usecase"
 )
 
 // Mapping metric write
-var metricWrite map[string]func(ctx context.Context, metric yametrics.Metric, name, value string) error = map[string]func(ctx context.Context, metric yametrics.Metric, name, value string) error{
-	"counter": func(ctx context.Context, metric yametrics.Metric, name, value string) error {
+var metricWrite map[string]func(ctx context.Context, metric usecase.MetricInterface, name, value string) error = map[string]func(ctx context.Context, metric usecase.MetricInterface, name, value string) error{
+	"counter": func(ctx context.Context, metric usecase.MetricInterface, name, value string) error {
 		val, err := strconv.ParseInt(value, 10, 64)
 		if err != nil {
 			return err
@@ -23,7 +23,7 @@ var metricWrite map[string]func(ctx context.Context, metric yametrics.Metric, na
 
 		return nil
 	},
-	"gauge": func(ctx context.Context, metric yametrics.Metric, name, value string) error {
+	"gauge": func(ctx context.Context, metric usecase.MetricInterface, name, value string) error {
 		val, err := strconv.ParseFloat(value, 64)
 		if err != nil {
 			return err
@@ -39,8 +39,8 @@ var metricWrite map[string]func(ctx context.Context, metric yametrics.Metric, na
 }
 
 // Mapping metric get
-var metricGet map[string]func(ctx context.Context, metric yametrics.Metric, name string) (string, error) = map[string]func(ctx context.Context, metric yametrics.Metric, name string) (string, error){
-	"counter": func(ctx context.Context, metric yametrics.Metric, name string) (string, error) {
+var metricGet map[string]func(ctx context.Context, metric usecase.MetricInterface, name string) (string, error) = map[string]func(ctx context.Context, metric usecase.MetricInterface, name string) (string, error){
+	"counter": func(ctx context.Context, metric usecase.MetricInterface, name string) (string, error) {
 		val, err := metric.GetCounter(ctx, name)
 		if err != nil {
 			return "", err
@@ -48,7 +48,7 @@ var metricGet map[string]func(ctx context.Context, metric yametrics.Metric, name
 
 		return fmt.Sprintf("%v", val), nil
 	},
-	"gauge": func(ctx context.Context, metric yametrics.Metric, name string) (string, error) {
+	"gauge": func(ctx context.Context, metric usecase.MetricInterface, name string) (string, error) {
 		val, err := metric.GetGauge(ctx, name)
 		if err != nil {
 			return "", err

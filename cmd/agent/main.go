@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/DenisquaP/ya-metrics/internal/config"
+	"github.com/DenisquaP/ya-metrics/internal/agent/app"
 )
 
 func main() {
-	config.Run()
+	app.Run()
 }
