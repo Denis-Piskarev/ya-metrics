@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -160,14 +161,16 @@ func (m *MemStatsYaSt) SendAllMetricsToServer(ctx context.Context, addr string) 
 		{
 			ID:    "RandomValue",
 			MType: "gauge",
-			Value: getPointerFloat(float64(m.RandomValue)),
+			Value: getPointerFloat(m.RandomValue),
 		},
 		{
 			ID:    "PollCount",
-			MType: "gauge",
-			Delta: getPointerInt(int64(m.PollCount)),
+			MType: "counter",
+			Delta: getPointerInt(m.PollCount),
 		},
 	}
+
+	log.Println(m.PollCount)
 
 	metrics, err := json.Marshal(req2)
 	if err != nil {
