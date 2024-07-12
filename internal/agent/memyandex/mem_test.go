@@ -13,7 +13,7 @@ func TestMemStatsYaSt_UpdateMetrics(t *testing.T) {
 
 	ctx := context.Background()
 
-	m.UpdateMetrics(ctx, 2)
+	m.UpdateMetrics(ctx)
 
 	// Проверка что хотя бы 1 переменная обновилась
 	assert.NotEmpty(t, m.RuntimeMem.Alloc)

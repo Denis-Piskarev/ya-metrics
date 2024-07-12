@@ -18,14 +18,10 @@ type MemStatsYaSt struct {
 	RandomValue float64
 }
 
-func (m *MemStatsYaSt) UpdateMetrics(ctx context.Context, pollInterval int) {
+func (m *MemStatsYaSt) UpdateMetrics(ctx context.Context) {
 	runtime.ReadMemStats(m.RuntimeMem)
 	m.RandomValue = float64(m.RuntimeMem.Alloc) / float64(1024)
 	m.PollCount++
-
-	withTimeout, cancel := context.WithTimeout(ctx, time.Duration(pollInterval)*time.Second)
-	defer cancel()
-	<-withTimeout.Done()
 }
 
 func (m *MemStatsYaSt) SendToServer(ctx context.Context, runAddr string, reportInterval int) error {

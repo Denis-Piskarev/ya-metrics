@@ -21,17 +21,20 @@ func Run() {
 
 	ctx := context.Background()
 
-	ticker := time.NewTicker(time.Duration(cfg.PollInterval) * time.Second)
+	tickerSend := time.NewTicker(time.Duration(cfg.ReportInterval) * time.Second)
+	tickerUpdate := time.NewTicker(time.Duration(cfg.PollInterval) * time.Second)
 
 	for {
 		select {
 		case <-ctx.Done():
 			return
-		case <-ticker.C:
-			mem.SendAllMetricsToServer(ctx)
-			if err := mem.SendToServer(ctx, cfg.RunAddr, cfg.ReportInterval); err != nil {
-				log.Printf("error send metrics: %s", err)
+		case <-tickerSend.C:
+			if err := mem.SendAllMetricsToServer(ctx, cfg.RunAddr); err != nil {
+				log.Fatalf("error send metrics: %s", err)
 			}
+
+		case <-tickerUpdate.C:
+			mem.UpdateMetrics(ctx)
 		}
 
 	}
