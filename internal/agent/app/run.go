@@ -8,12 +8,21 @@ import (
 
 	"github.com/DenisquaP/ya-metrics/internal/agent/config"
 	"github.com/DenisquaP/ya-metrics/internal/agent/memyandex"
+	"go.uber.org/zap"
 )
 
 func Run() {
-	cfg, err := config.NewConfig()
+	logger, err := zap.NewDevelopment()
 	if err != nil {
 		log.Fatal(err)
+	}
+	defer logger.Sync()
+
+	sugared := logger.Sugar()
+
+	cfg, err := config.NewConfig()
+	if err != nil {
+		sugared.Fatalw("Failed to parse config", "error", err)
 	}
 
 	// Creating struct for collecting metrics
@@ -30,7 +39,7 @@ func Run() {
 			return
 		case <-tickerSend.C:
 			if err := mem.SendAllMetricsToServer(ctx, cfg.RunAddr); err != nil {
-				log.Fatalf("error send metrics: %s", err)
+				sugared.Errorw("Failed to send metrics", "error", err)
 			}
 
 		case <-tickerUpdate.C:
