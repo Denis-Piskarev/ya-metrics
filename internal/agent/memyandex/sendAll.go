@@ -170,8 +170,6 @@ func (m *MemStatsYaSt) SendAllMetricsToServer(ctx context.Context, addr string) 
 		},
 	}
 
-	log.Println(m.PollCount)
-
 	metrics, err := json.Marshal(req2)
 	if err != nil {
 		return err
