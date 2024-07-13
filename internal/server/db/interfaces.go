@@ -5,7 +5,7 @@ package db
 import (
 	"context"
 
-	"github.com/DenisquaP/ya-metrics/pkg/models"
+	"github.com/DenisquaP/ya-metrics/internal/models"
 )
 
 //go:generate mockgen -source=interfaces.go -destination=mocks/db.go -package=mocks

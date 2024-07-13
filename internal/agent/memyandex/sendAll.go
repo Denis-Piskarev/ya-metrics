@@ -1,17 +1,20 @@
 package memyandex
 
 import (
-	"bytes"
-	"compress/gzip"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"net"
 	"net/http"
 	"time"
 
-	"github.com/DenisquaP/ya-metrics/pkg/models"
+	"github.com/DenisquaP/ya-metrics/internal/agent/compress"
+	"github.com/DenisquaP/ya-metrics/internal/models"
+	"github.com/DenisquaP/ya-metrics/internal/repeat"
 )
 
+// Funcs to get pointer
 func getPointerFloat(v float64) *float64 {
 	return &v
 }
@@ -20,8 +23,58 @@ func getPointerInt(v int64) *int64 {
 	return &v
 }
 
+// SendAllMetricsToServer sends all metrics to server
 func (m *MemStatsYaSt) SendAllMetricsToServer(ctx context.Context, addr string) error {
-	req2 := []models.Metrics{
+	// Metrics slice
+	met := m.getSliceMetrics()
+
+	metrics, err := json.Marshal(met)
+	if err != nil {
+		return err
+	}
+
+	// Getting compressed data
+	buf, err := compress.GetGZip(metrics)
+	if err != nil {
+		return err
+	}
+
+	// Sending request with compressed data
+	client := http.Client{Timeout: 5 * time.Second}
+	reqw, err := http.NewRequest("POST", fmt.Sprintf(AllMetricsURL, addr), buf)
+	if err != nil {
+		return err
+	}
+	reqw.Header.Set("Content-Type", "application/json")
+	reqw.Header.Set("Content-Encoding", "gzip")
+	reqw.Header.Set("Accept-Encoding", "gzip")
+
+	resp, err := client.Do(reqw)
+	if err != nil {
+		var urlErr *net.OpError
+
+		// Check if error is OpError
+		if errors.As(err, &urlErr) {
+			if err := repeat.RepeatNet(ctx, &client, reqw); err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("not expected status code: %d", resp.StatusCode)
+
+	}
+
+	return nil
+}
+
+// getSliceMetrics returns slice of metrics to send to server
+func (m *MemStatsYaSt) getSliceMetrics() []models.Metrics {
+	metrics := []models.Metrics{
 		{
 			ID:    "Alloc",
 			MType: "gauge",
@@ -169,70 +222,5 @@ func (m *MemStatsYaSt) SendAllMetricsToServer(ctx context.Context, addr string) 
 		},
 	}
 
-	metrics, err := json.Marshal(req2)
-	if err != nil {
-		return err
-	}
-
-	// Creating a new gzip writer
-	var buf bytes.Buffer
-	gz := gzip.NewWriter(&buf)
-	defer gz.Close()
-
-	// Writing the body to the gzip writer
-	if _, err = gz.Write(metrics); err != nil {
-		return err
-	}
-
-	if err = gz.Flush(); err != nil {
-		return err
-	}
-
-	// Sending request with compressed data
-	client := http.Client{Timeout: 5 * time.Second}
-	reqw, err := http.NewRequest("POST", fmt.Sprintf(AllMetricsURL, addr), &buf)
-	if err != nil {
-		return err
-	}
-
-	if err = cliSend(client, reqw); err != nil {
-		sec := 3
-		tickerResend := time.NewTicker(time.Duration(sec) * time.Second)
-		for {
-			select {
-			case <-ctx.Done():
-				return fmt.Errorf("context canceled")
-			case <-tickerResend.C:
-				err := cliSend(client, reqw)
-				if sec == 7 && err != nil {
-					return err
-				}
-				if err == nil {
-					return nil
-				}
-
-				sec += 2
-			}
-		}
-	}
-
-	return nil
-}
-
-func cliSend(client http.Client, reqw *http.Request) error {
-	reqw.Header.Set("Content-Type", "application/json")
-	reqw.Header.Set("Content-Encoding", "gzip")
-	reqw.Header.Set("Accept-Encoding", "gzip")
-
-	resp, err := client.Do(reqw)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("not expected status code: %d", resp.StatusCode)
-	}
-
-	return nil
+	return metrics
 }

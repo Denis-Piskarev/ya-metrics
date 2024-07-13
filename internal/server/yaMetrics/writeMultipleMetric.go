@@ -3,7 +3,7 @@ package yametrics
 import (
 	"context"
 
-	"github.com/DenisquaP/ya-metrics/pkg/models"
+	"github.com/DenisquaP/ya-metrics/internal/models"
 )
 
 func (m *MemStorage) WriteMetrics(ctx context.Context, metrics []*models.Metrics) error {

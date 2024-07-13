@@ -3,7 +3,7 @@ package usecase
 import (
 	"context"
 
-	"github.com/DenisquaP/ya-metrics/pkg/models"
+	"github.com/DenisquaP/ya-metrics/internal/models"
 )
 
 func (m *Metric) WriteGauge(ctx context.Context, name string, val float64) (float64, error) {

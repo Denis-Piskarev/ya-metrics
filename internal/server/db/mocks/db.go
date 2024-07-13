@@ -8,7 +8,7 @@ import (
 	context "context"
 	reflect "reflect"
 
-	models "github.com/DenisquaP/ya-metrics/pkg/models"
+	models "github.com/DenisquaP/ya-metrics/internal/models"
 	gomock "github.com/golang/mock/gomock"
 )
 

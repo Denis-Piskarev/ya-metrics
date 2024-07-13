@@ -30,9 +30,11 @@ func Run() {
 
 	ctx := context.Background()
 
+	// Tickers to send and update metrics
 	tickerSend := time.NewTicker(time.Duration(cfg.ReportInterval) * time.Second)
 	tickerUpdate := time.NewTicker(time.Duration(cfg.PollInterval) * time.Second)
 
+	// Loop update and send metrics
 	for {
 		select {
 		case <-ctx.Done():

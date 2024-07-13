@@ -3,7 +3,7 @@ package usecase
 import (
 	"context"
 
-	"github.com/DenisquaP/ya-metrics/pkg/models"
+	"github.com/DenisquaP/ya-metrics/internal/models"
 )
 
 // Metrics interface

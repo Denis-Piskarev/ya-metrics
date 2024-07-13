@@ -1,14 +1,13 @@
 package memyandex
 
 import (
-	"bytes"
-	"compress/gzip"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
 
-	"github.com/DenisquaP/ya-metrics/pkg/models"
+	"github.com/DenisquaP/ya-metrics/internal/agent/compress"
+	"github.com/DenisquaP/ya-metrics/internal/models"
 )
 
 // Send sends metric to server
@@ -31,22 +30,14 @@ func (c Counter) Send(addr, name string) error {
 	}
 
 	// Creating a new gzip writer
-	var buf bytes.Buffer
-	gz := gzip.NewWriter(&buf)
-	defer gz.Close()
-
-	// Writing the body to the gzip writer
-	if _, err = gz.Write(body); err != nil {
-		return err
-	}
-
-	if err = gz.Flush(); err != nil {
+	buf, err := compress.GetGZip(body)
+	if err != nil {
 		return err
 	}
 
 	// Sending request with compressed data
 	client := http.Client{Timeout: 20 * time.Second}
-	reqw, err := http.NewRequest("POST", fmt.Sprintf(MetricsUpdateURL, addr), &buf)
+	reqw, err := http.NewRequest("POST", fmt.Sprintf(MetricsUpdateURL, addr), buf)
 	if err != nil {
 		return err
 	}
@@ -76,29 +67,21 @@ func (g Gauge) Send(addr, name string) error {
 		Value: &floatG,
 	}
 
-	// Creating a new gzip writer
-	var buf bytes.Buffer
-	gz := gzip.NewWriter(&buf)
-	defer gz.Close()
-
 	body, err := json.Marshal(req)
 	if err != nil {
 		return err
 	}
 
-	// Writing the body to the gzip writer
-	if _, err := gz.Write(body); err != nil {
-		return err
-	}
-
-	if err := gz.Flush(); err != nil {
+	// Creating a new gzip writer
+	buf, err := compress.GetGZip(body)
+	if err != nil {
 		return err
 	}
 
 	client := http.Client{}
 
 	// Sending request with compressed data
-	reqw, err := http.NewRequest("POST", fmt.Sprintf(MetricsUpdateURL, addr), &buf)
+	reqw, err := http.NewRequest("POST", fmt.Sprintf(MetricsUpdateURL, addr), buf)
 	if err != nil {
 		return err
 	}

@@ -8,7 +8,7 @@ import (
 
 	"github.com/go-chi/chi"
 
-	"github.com/DenisquaP/ya-metrics/pkg/models"
+	"github.com/DenisquaP/ya-metrics/internal/models"
 )
 
 // Create metric with query params
