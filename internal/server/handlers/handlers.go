@@ -13,18 +13,18 @@ import (
 )
 
 type Handler struct {
-	Metrics usecase.MetricInterface
+	Metrics usecase.MetricService
 	Logger  *zap.SugaredLogger
 }
 
-func NewHandler(metrics usecase.MetricInterface, logger *zap.SugaredLogger) *Handler {
+func NewHandler(metrics usecase.MetricService, logger *zap.SugaredLogger) *Handler {
 	return &Handler{
 		Metrics: metrics,
 		Logger:  logger,
 	}
 }
 
-func NewRouterWithMiddlewares(ctx context.Context, logger *zap.SugaredLogger, metrics usecase.MetricInterface) http.Handler {
+func NewRouterWithMiddlewares(ctx context.Context, logger *zap.SugaredLogger, metrics usecase.MetricService, key string) http.Handler {
 	select {
 	case <-ctx.Done():
 		logger.Errorw("context canceled", "error", ctx.Err())
@@ -36,8 +36,12 @@ func NewRouterWithMiddlewares(ctx context.Context, logger *zap.SugaredLogger, me
 
 	r.Use(middlewares.Logging(logger))
 
-	// Middleware for comporession
+	// Middleware for compression
 	r.Use(middlewares.Compression)
+
+	if key != "" {
+		r.Use(middlewares.GetSum(logger, key))
+	}
 
 	h := NewHandler(metrics, logger)
 

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/DenisquaP/ya-metrics/internal/cryptography"
 	"net"
 	"net/http"
 	"time"
@@ -24,7 +25,7 @@ func getPointerInt(v int64) *int64 {
 }
 
 // SendAllMetricsToServer sends all metrics to server
-func (m *MemStatsYaSt) SendAllMetricsToServer(ctx context.Context, addr string) error {
+func (m *MemStatsYaSt) SendAllMetricsToServer(ctx context.Context, addr string, key string) error {
 	// Metrics slice
 	met := m.getSliceMetrics()
 
@@ -32,6 +33,8 @@ func (m *MemStatsYaSt) SendAllMetricsToServer(ctx context.Context, addr string) 
 	if err != nil {
 		return err
 	}
+
+	sum := cryptography.GetSum(metrics, key)
 
 	// Getting compressed data
 	buf, err := compress.GetGZip(metrics)
@@ -48,6 +51,7 @@ func (m *MemStatsYaSt) SendAllMetricsToServer(ctx context.Context, addr string) 
 	reqw.Header.Set("Content-Type", "application/json")
 	reqw.Header.Set("Content-Encoding", "gzip")
 	reqw.Header.Set("Accept-Encoding", "gzip")
+	reqw.Header.Set("HashSHA256", sum)
 
 	resp, err := client.Do(reqw)
 	if err != nil {
