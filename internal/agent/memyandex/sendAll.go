@@ -34,8 +34,6 @@ func (m *MemStatsYaSt) SendAllMetricsToServer(ctx context.Context, addr string, 
 		return err
 	}
 
-	sum := cryptography.GetSum(metrics, key)
-
 	// Getting compressed data
 	buf, err := compress.GetGZip(metrics)
 	if err != nil {
@@ -51,7 +49,12 @@ func (m *MemStatsYaSt) SendAllMetricsToServer(ctx context.Context, addr string, 
 	reqw.Header.Set("Content-Type", "application/json")
 	reqw.Header.Set("Content-Encoding", "gzip")
 	reqw.Header.Set("Accept-Encoding", "gzip")
-	reqw.Header.Set("HashSHA256", sum)
+
+	// if key not nil writing sum to header
+	if key != "" {
+		sum := cryptography.GetSum(metrics, key)
+		reqw.Header.Set("HashSHA256", sum)
+	}
 
 	resp, err := client.Do(reqw)
 	if err != nil {

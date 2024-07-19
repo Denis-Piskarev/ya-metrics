@@ -39,10 +39,6 @@ func NewRouterWithMiddlewares(ctx context.Context, logger *zap.SugaredLogger, me
 	// Middleware for compression
 	r.Use(middlewares.Compression)
 
-	if key != "" {
-		r.Use(middlewares.GetSum(logger, key))
-	}
-
 	h := NewHandler(metrics, logger)
 
 	// To get all metrics in HTML
@@ -59,13 +55,21 @@ func NewRouterWithMiddlewares(ctx context.Context, logger *zap.SugaredLogger, me
 		r.Post("/update/{type}/{name}/{value}", h.createMetric)
 
 		// Update metric JSON
-		r.Post("/update/", h.createMetricJSON)
+		r.Post("/", h.createMetricJSON)
 
 		// Get metric JSON
 		r.Post("/value/", h.GetMetricJSON)
+	})
+
+	r.Route("/updates", func(r chi.Router) {
+		r.Use(middleware.AllowContentType("application/json"))
+
+		if key != "" {
+			r.Use(middlewares.GetSum(logger, key))
+		}
 
 		// Update multiple metric
-		r.Post("/updates/", h.UpdateMultiple)
+		r.Post("/", h.UpdateMultiple)
 	})
 
 	// Получение метрик v1
