@@ -1,10 +1,12 @@
 package middlewares
 
 import (
-	"github.com/DenisquaP/ya-metrics/internal/cryptography"
-	"go.uber.org/zap"
+	"bytes"
 	"io"
 	"net/http"
+
+	"github.com/DenisquaP/ya-metrics/internal/cryptography"
+	"go.uber.org/zap"
 )
 
 func GetSum(logger *zap.SugaredLogger, key string) func(http.Handler) http.Handler {
@@ -26,10 +28,12 @@ func GetSum(logger *zap.SugaredLogger, key string) func(http.Handler) http.Handl
 			expectedSum := cryptography.GetSum(metrics, key)
 
 			if sumGet != expectedSum {
-				logger.Warnw("Expected hash does not match", "expected", expectedSum, "actual", sumGet)
+				logger.Errorw("Expected hash does not match", "expected", expectedSum, "actual", sumGet)
 
 				w.WriteHeader(http.StatusBadRequest)
 			}
+
+			r.Body = io.NopCloser(bytes.NewBuffer(metrics))
 
 			next.ServeHTTP(w, r)
 		})
