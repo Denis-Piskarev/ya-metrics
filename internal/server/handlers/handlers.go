@@ -55,7 +55,7 @@ func NewRouterWithMiddlewares(ctx context.Context, logger *zap.SugaredLogger, me
 		r.Post("/update/{type}/{name}/{value}", h.createMetric)
 
 		// Update metric JSON
-		r.Post("/", h.createMetricJSON)
+		r.Post("/update/", h.createMetricJSON)
 
 		// Get metric JSON
 		r.Post("/value/", h.GetMetricJSON)
