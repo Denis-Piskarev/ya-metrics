@@ -1,34 +1,35 @@
 package handlers
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 
-	yametrics "github.com/DenisquaP/ya-metrics/internal/server/yaMetrics"
+	"github.com/DenisquaP/ya-metrics/internal/server/usecase"
 )
 
 // Mapping metric write
-var metricWrite map[string]func(metric *yametrics.MemStorage, name, value string) error = map[string]func(metric *yametrics.MemStorage, name, value string) error{
-	"counter": func(metric *yametrics.MemStorage, name, value string) error {
+var metricWrite map[string]func(ctx context.Context, metric usecase.MetricInterface, name, value string) error = map[string]func(ctx context.Context, metric usecase.MetricInterface, name, value string) error{
+	"counter": func(ctx context.Context, metric usecase.MetricInterface, name, value string) error {
 		val, err := strconv.ParseInt(value, 10, 64)
 		if err != nil {
 			return err
 		}
 
-		_, err = metric.WriteCounter(name, val)
+		_, err = metric.WriteCounter(ctx, name, val)
 		if err != nil {
 			return err
 		}
 
 		return nil
 	},
-	"gauge": func(metric *yametrics.MemStorage, name, value string) error {
+	"gauge": func(ctx context.Context, metric usecase.MetricInterface, name, value string) error {
 		val, err := strconv.ParseFloat(value, 64)
 		if err != nil {
 			return err
 		}
 
-		_, err = metric.WriteGauge(name, val)
+		_, err = metric.WriteGauge(ctx, name, val)
 		if err != nil {
 			return err
 		}
@@ -38,17 +39,17 @@ var metricWrite map[string]func(metric *yametrics.MemStorage, name, value string
 }
 
 // Mapping metric get
-var metricGet map[string]func(metric *yametrics.MemStorage, name string) (string, error) = map[string]func(metric *yametrics.MemStorage, name string) (string, error){
-	"counter": func(metric *yametrics.MemStorage, name string) (string, error) {
-		val, err := metric.GetCounter(name)
+var metricGet map[string]func(ctx context.Context, metric usecase.MetricInterface, name string) (string, error) = map[string]func(ctx context.Context, metric usecase.MetricInterface, name string) (string, error){
+	"counter": func(ctx context.Context, metric usecase.MetricInterface, name string) (string, error) {
+		val, err := metric.GetCounter(ctx, name)
 		if err != nil {
 			return "", err
 		}
 
 		return fmt.Sprintf("%v", val), nil
 	},
-	"gauge": func(metric *yametrics.MemStorage, name string) (string, error) {
-		val, err := metric.GetGauge(name)
+	"gauge": func(ctx context.Context, metric usecase.MetricInterface, name string) (string, error) {
+		val, err := metric.GetGauge(ctx, name)
 		if err != nil {
 			return "", err
 		}

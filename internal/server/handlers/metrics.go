@@ -8,11 +8,13 @@ import (
 
 	"github.com/go-chi/chi"
 
-	"github.com/DenisquaP/ya-metrics/pkg/models"
+	"github.com/DenisquaP/ya-metrics/internal/models"
 )
 
 // Create metric with query params
 func (h *Handler) createMetric(rw http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
 	// Getting params
 	typeMetric := chi.URLParam(r, "type")
 	nameMetric := chi.URLParam(r, "name")
@@ -31,7 +33,7 @@ func (h *Handler) createMetric(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	// Writing metric into structure
-	err := funcWrite(h.Metrics, nameMetric, valueMetric)
+	err := funcWrite(ctx, h.Metrics, nameMetric, valueMetric)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusBadRequest)
 		return
@@ -42,6 +44,8 @@ func (h *Handler) createMetric(rw http.ResponseWriter, r *http.Request) {
 
 // Get metric with query params
 func (h *Handler) GetMetric(rw http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
 	typeMet := chi.URLParam(r, "type")
 	name := chi.URLParam(r, "name")
 
@@ -55,7 +59,7 @@ func (h *Handler) GetMetric(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	// Getting metric
-	metric, err := funcGet(h.Metrics, name)
+	metric, err := funcGet(ctx, h.Metrics, name)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusNotFound)
 		return
@@ -74,6 +78,7 @@ func (h *Handler) GetMetric(rw http.ResponseWriter, r *http.Request) {
 // Create metric with json body
 func (h *Handler) createMetricJSON(rw http.ResponseWriter, r *http.Request) {
 	var request models.Metrics
+	ctx := r.Context()
 
 	// Decoding json
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
@@ -90,7 +95,7 @@ func (h *Handler) createMetricJSON(rw http.ResponseWriter, r *http.Request) {
 	// Writing metric
 	switch request.MType {
 	case "counter":
-		newVal, err := h.Metrics.WriteCounter(request.ID, *request.Delta)
+		newVal, err := h.Metrics.WriteCounter(ctx, request.ID, *request.Delta)
 		if err != nil {
 			http.Error(rw, err.Error(), http.StatusBadRequest)
 			return
@@ -99,7 +104,7 @@ func (h *Handler) createMetricJSON(rw http.ResponseWriter, r *http.Request) {
 		request.Delta = &newVal
 
 	case "gauge":
-		newVal, err := h.Metrics.WriteGauge(request.ID, *request.Value)
+		newVal, err := h.Metrics.WriteGauge(ctx, request.ID, *request.Value)
 		if err != nil {
 			http.Error(rw, err.Error(), http.StatusBadRequest)
 			return
@@ -131,6 +136,7 @@ func (h *Handler) createMetricJSON(rw http.ResponseWriter, r *http.Request) {
 // Get metric with json body
 func (h *Handler) GetMetricJSON(rw http.ResponseWriter, r *http.Request) {
 	var metric models.Metrics
+	ctx := r.Context()
 
 	// Decoding json
 	if err := json.NewDecoder(r.Body).Decode(&metric); err != nil {
@@ -142,9 +148,8 @@ func (h *Handler) GetMetricJSON(rw http.ResponseWriter, r *http.Request) {
 	// Writing metric
 	switch metric.MType {
 	case "counter":
-		c, err := h.Metrics.GetCounter(metric.ID)
+		c, err := h.Metrics.GetCounter(ctx, metric.ID)
 		if err != nil {
-			log.Println(err.Error() + "[c]")
 			http.Error(rw, err.Error()+"not found counter", http.StatusNotFound)
 			return
 		}
@@ -152,9 +157,8 @@ func (h *Handler) GetMetricJSON(rw http.ResponseWriter, r *http.Request) {
 		// Writing response struct
 		metric.Delta = &c
 	case "gauge":
-		g, err := h.Metrics.GetGauge(metric.ID)
+		g, err := h.Metrics.GetGauge(ctx, metric.ID)
 		if err != nil {
-			log.Println(err.Error() + "[g]")
 			http.Error(rw, err.Error()+"not found gauge", http.StatusNotFound)
 			return
 		}
@@ -184,13 +188,43 @@ func (h *Handler) GetMetricJSON(rw http.ResponseWriter, r *http.Request) {
 
 // Get all metrics
 func (h *Handler) GetMetrics(rw http.ResponseWriter, r *http.Request) {
-	metrics := h.Metrics.GetMetrics()
+	metrics, err := h.Metrics.GetMetrics(r.Context())
+	if err != nil {
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	metHTML := strings.Replace(HTMLMet, "{{metrics}}", metrics, -1)
 
 	rw.Header().Set("Content-Type", "text/html")
 	rw.WriteHeader(http.StatusOK)
 	rw.Write([]byte(metHTML))
+}
+
+func (h *Handler) UpdateMultiple(rw http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	// Decoding json
+	var request []*models.Metrics
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		log.Println(err)
+		rw.Write([]byte(err.Error()))
+		http.Error(rw, err.Error(), http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	// Writing metrics
+	err := h.Metrics.WriteMetrics(ctx, request)
+	if err != nil {
+		log.Println(err)
+		rw.Write([]byte(err.Error()))
+		http.Error(rw, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	rw.WriteHeader(http.StatusOK)
+	rw.Write([]byte(`{"status": "ok"}`))
 }
 
 var HTMLMet = `<!DOCTYPE html>

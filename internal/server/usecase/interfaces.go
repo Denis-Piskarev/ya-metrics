@@ -1,4 +1,4 @@
-package yametrics
+package usecase
 
 import (
 	"context"
@@ -7,10 +7,10 @@ import (
 )
 
 // Metrics interface
-type Metric interface {
+type MetricInterface interface {
 	MetricGetter
 	MetricWriter
-	MetricSaver
+	Ping(ctx context.Context) error
 }
 
 // Iterface for writing metrics
@@ -31,10 +31,4 @@ type MetricGetter interface {
 	GetGauge(ctx context.Context, name string) (float64, error)
 	// GetCounter gets counter metric
 	GetCounter(ctx context.Context, name string) (int64, error)
-}
-
-// Interface for saving metrics
-type MetricSaver interface {
-	SaveMetricsToFile(wd string) error
-	RestoreFromFile(wd string) error
 }

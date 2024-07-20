@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/DenisquaP/ya-metrics/pkg/models"
+	"github.com/DenisquaP/ya-metrics/internal/models"
 )
 
 func (m *MemStorage) SaveMetricsToFile(wd string) error {

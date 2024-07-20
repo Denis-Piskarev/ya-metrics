@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/DenisquaP/ya-metrics/internal/server"
+	"github.com/DenisquaP/ya-metrics/internal/server/app"
 )
 
 func main() {
-	server.Run()
+	app.Run()
 }

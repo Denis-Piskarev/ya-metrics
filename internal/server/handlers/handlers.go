@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/go-chi/chi"
@@ -8,43 +9,59 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/DenisquaP/ya-metrics/internal/server/middlewares"
-	yametrics "github.com/DenisquaP/ya-metrics/internal/server/yaMetrics"
+	"github.com/DenisquaP/ya-metrics/internal/server/usecase"
 )
 
 type Handler struct {
-	Metrics *yametrics.MemStorage
+	Metrics usecase.MetricInterface
+	Logger  *zap.SugaredLogger
 }
 
-func NewHandler(metrics *yametrics.MemStorage) *Handler {
+func NewHandler(metrics usecase.MetricInterface, logger *zap.SugaredLogger) *Handler {
 	return &Handler{
 		Metrics: metrics,
+		Logger:  logger,
 	}
 }
 
-func NewRouterWithMiddlewares(logger *zap.SugaredLogger, metrics *yametrics.MemStorage) http.Handler {
+func NewRouterWithMiddlewares(ctx context.Context, logger *zap.SugaredLogger, metrics usecase.MetricInterface) http.Handler {
+	select {
+	case <-ctx.Done():
+		logger.Errorw("context canceled", "error", ctx.Err())
+		return nil
+	default:
+	}
+
 	r := chi.NewRouter()
+
 	r.Use(middlewares.Logging(logger))
 
-	// Middleware для сжатия
+	// Middleware for comporession
 	r.Use(middlewares.Compression)
 
-	h := NewHandler(metrics)
+	h := NewHandler(metrics, logger)
 
-	// Получение всех метрик в HTML
+	// To get all metrics in HTML
 	r.Get("/", h.GetMetrics)
 
+	// Ping database
+	r.Get("/ping", h.Ping)
+
 	r.Route("/", func(r chi.Router) {
-		// Middleware для проверки ContentType
+		// Middleware for check ContentType
 		r.Use(middleware.AllowContentType("application/json"))
 
-		// Обновление метрик v1
+		// Update metric
 		r.Post("/update/{type}/{name}/{value}", h.createMetric)
 
-		// Обновление метрик v2
+		// Update metric JSON
 		r.Post("/update/", h.createMetricJSON)
 
-		// Получение метрик v2
+		// Get metric JSON
 		r.Post("/value/", h.GetMetricJSON)
+
+		// Update multiple metric
+		r.Post("/updates/", h.UpdateMultiple)
 	})
 
 	// Получение метрик v1
