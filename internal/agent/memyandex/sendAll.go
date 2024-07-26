@@ -231,6 +231,16 @@ func (m *MemStatsYaSt) getSliceMetrics() []models.Metrics {
 			Value: getPointerFloat(m.RandomValue),
 		},
 		{
+			ID:    "TotalMemory",
+			MType: "gauge",
+			Value: getPointerFloat(m.TotalMemory),
+		},
+		{
+			ID:    "FreeMemory",
+			MType: "gauge",
+			Value: getPointerFloat(m.FreeMemory),
+		},
+		{
 			ID:    "PollCount",
 			MType: "counter",
 			Delta: getPointerInt(m.PollCount),
