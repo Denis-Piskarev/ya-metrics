@@ -15,6 +15,9 @@ type Config struct {
 	// Frequency of a metric survey частота опроса метрик из пакета runtime
 	PollInterval int `env:"POLL_INTERVAL" envDefault:"2"`
 
+	// Limit of requests to server
+	RateLimit int `env:"RATE_LIMIT" envDefault:"10"`
+
 	// Crypto key
 	Key string `env:"KEY" envDefault:""`
 }
@@ -27,6 +30,7 @@ func NewConfig() (Config, error) {
 	flag.IntVar(&cfg.ReportInterval, "r", 10, "interval between report calls")
 	flag.IntVar(&cfg.PollInterval, "p", 2, "interval between polling calls")
 	flag.StringVar(&cfg.Key, "k", "", "key to use for encryption")
+	flag.IntVar(&cfg.RateLimit, "l", 10, "limit of requests to server")
 
 	if err := env.Parse(&cfg); err != nil {
 		return Config{}, err

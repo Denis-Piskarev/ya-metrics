@@ -8,6 +8,7 @@ import (
 	"github.com/DenisquaP/ya-metrics/internal/cryptography"
 	"net"
 	"net/http"
+	"sync/atomic"
 	"time"
 
 	"github.com/DenisquaP/ya-metrics/internal/agent/compress"
@@ -25,26 +26,33 @@ func getPointerInt(v int64) *int64 {
 }
 
 // SendAllMetricsToServer sends all metrics to server
-func (m *MemStatsYaSt) SendAllMetricsToServer(ctx context.Context, addr string, key string) error {
+func (m *MemStatsYaSt) SendAllMetricsToServer(ctx context.Context, addr string, key string, errChan chan error, rateCount *atomic.Int64) {
+	// counting actual requests
+	rateCount.Add(1)
+	defer rateCount.Add(-1)
+
 	// Metrics slice
 	met := m.getSliceMetrics()
 
 	metrics, err := json.Marshal(met)
 	if err != nil {
-		return err
+		errChan <- err
+		return
 	}
 
 	// Getting compressed data
 	buf, err := compress.GetGZip(metrics)
 	if err != nil {
-		return err
+		errChan <- err
+		return
 	}
 
 	// Sending request with compressed data
 	client := http.Client{Timeout: 5 * time.Second}
 	reqw, err := http.NewRequest("POST", fmt.Sprintf(AllMetricsURL, addr), buf)
 	if err != nil {
-		return err
+		errChan <- err
+		return
 	}
 	reqw.Header.Set("Content-Type", "application/json")
 	reqw.Header.Set("Content-Encoding", "gzip")
@@ -63,20 +71,20 @@ func (m *MemStatsYaSt) SendAllMetricsToServer(ctx context.Context, addr string, 
 		// Check if error is OpError
 		if errors.As(err, &urlErr) {
 			if err := repeat.RepeatNet(ctx, &client, reqw); err != nil {
-				return err
+				errChan <- err
+				return
 			}
 		} else {
-			return err
+			errChan <- err
+			return
 		}
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("not expected status code: %d", resp.StatusCode)
-
+		errChan <- fmt.Errorf("not expected status code: %d", resp.StatusCode)
+		return
 	}
-
-	return nil
 }
 
 // getSliceMetrics returns slice of metrics to send to server
